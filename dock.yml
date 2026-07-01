@@ -9,6 +9,9 @@ tags:
   - visual-regression
   - playwright
 
+permission:
+  - npm install --prefix .codex/skills/image2html
+
 requires:
   runtimes:
     node: ">=20.0.0"
@@ -28,6 +31,33 @@ files:
   - from: package-lock.json
     to: .codex/skills/image2html/package-lock.json
 
+workdir:
+  files:
+    - from: package.json
+      to: .codex/skills/image2html/package.json
+    - from: package-lock.json
+      to: .codex/skills/image2html/package-lock.json
+
+install:
+  - id: install-image2html-deps
+    name: Install image2html harness dependencies
+    run: npm install --prefix .codex/skills/image2html
+    workdir: dock
+    timeout_ms: 600000
+    export:
+      include:
+        - .codex/skills/image2html/node_modules/**
+
+update:
+  - id: update-image2html-deps
+    name: Refresh image2html harness dependencies
+    run: npm install --prefix .codex/skills/image2html
+    workdir: dock
+    timeout_ms: 600000
+    export:
+      include:
+        - .codex/skills/image2html/node_modules/**
+
 doctor:
   - id: codex-skill
     check: test -f .codex/skills/image2html/SKILL.md
@@ -39,3 +69,5 @@ doctor:
     check: test -f .codex/skills/image2html/scripts/run-site-harness.mjs
   - id: harness-package
     check: test -f .codex/skills/image2html/package.json
+  - id: harness-sharp-dependency
+    check: test -d .codex/skills/image2html/node_modules/sharp
