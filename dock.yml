@@ -9,6 +9,9 @@ tags:
   - visual-regression
   - playwright
 
+permission:
+  - npm install --prefix .codex/skills/image2html
+
 requires:
   runtimes:
     node: ">=20.0.0"
