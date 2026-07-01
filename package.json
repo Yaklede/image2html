@@ -1,0 +1,28 @@
+{
+  "name": "image2html",
+  "version": "0.1.0",
+  "private": false,
+  "description": "A Codex skill and harness for converting provided images into high-fidelity HTML.",
+  "type": "module",
+  "scripts": {
+    "harness": "node scripts/run-harness.mjs",
+    "normalize": "node scripts/normalize-image.mjs",
+    "render": "node scripts/render-html.mjs",
+    "compare": "node scripts/compare-screenshots.mjs",
+    "a11y": "node scripts/check-accessibility.mjs"
+  },
+  "keywords": [
+    "codex-skill",
+    "image-to-html",
+    "visual-regression",
+    "playwright"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.54.2",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.5"
+  }
+}

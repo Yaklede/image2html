@@ -1,0 +1,6 @@
+interface:
+  display_name: "Image2HTML"
+  short_description: "High-fidelity image to HTML harness"
+  default_prompt: "Use $image2html to convert this image into high-fidelity HTML and verify it with the harness."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5 @@
+node_modules/
+.image2html-report/
+coverage/
+dist/
+.DS_Store
