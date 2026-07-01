@@ -31,14 +31,20 @@ npm install
 Run the full harness:
 
 ```bash
-npm run harness -- --reference path/to/reference.png --html path/to/output.html --out .image2html-report
+npm run harness -- --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
 ```
 
-The harness renders the HTML at the source image viewport, captures a screenshot, compares it against the reference image, runs accessibility checks, and writes:
+Use `--crop x,y,width,height` when the reference includes browser chrome but no spec exists.
+
+The harness crops the source image when `contentBounds` is provided, renders the HTML at the content viewport, captures a screenshot, compares it against the reference image, inspects component bounding boxes, runs region-level diffs, runs edge/shadow diagnostics, checks responsive overflow, runs accessibility checks, and writes:
 
 - `.image2html-report/reference.png`
 - `.image2html-report/rendered.png`
 - `.image2html-report/diff.png`
+- `.image2html-report/edge-diff.png`
+- `.image2html-report/shadow-diff.png`
+- `.image2html-report/layout.json`
+- `.image2html-report/responsive.json`
 - `.image2html-report/report.json`
 - `.image2html-report/report.md`
 
@@ -50,6 +56,16 @@ The automated score combines:
 
 - pixel similarity
 - viewport/dimension agreement
+- region-level similarity
+- DOM bounding-box agreement through `data-i2h-id`
+- edge/shadow diagnostics
+- responsive sanity
 - accessibility violations
 
 Manual review is still required for exact text correctness, typography nuance, icon meaning, and subtle visual details.
+
+## Asset Slots / 이미지 슬롯
+
+Image-like regions such as portraits, generated illustrations, product renders, photos, and embedded screenshots should be represented as fillable asset slots first. The harness validates the slot's bounds and layout, skips region pixel comparison, and masks the slot in global pixel, edge, and shadow diagnostics until a real asset is supplied.
+
+이미지로 추정되는 영역은 어설픈 CSS/SVG 근사 대신 나중에 채워 넣을 수 있는 asset slot으로 남기는 것을 기본 규칙으로 합니다. 하네스는 해당 영역의 위치와 크기는 검증하되, 실제 에셋이 들어오기 전까지 전체 diff/edge/shadow 비교에서는 마스킹합니다.

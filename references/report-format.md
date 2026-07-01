@@ -8,6 +8,7 @@ Use this final report shape after producing or verifying HTML.
 - Output:
 - Reference:
 - Viewport:
+- Content crop:
 - Result:
 
 ## Analysis Notes
@@ -16,12 +17,21 @@ Use this final report shape after producing or verifying HTML.
 - Typography:
 - Colors:
 - Assets:
+- Asset slots:
+- Asset masks:
 - Uncertainties:
 
 ## Harness
 
 - Automated score:
 - Pixel similarity:
+- Region failures:
+- Layout bbox failures:
+- Asset slot failures:
+- Masked asset slots:
+- Edge similarity:
+- Shadow similarity:
+- Responsive failures:
 - Diff pixels:
 - Accessibility:
 - Pass/fail:
@@ -34,6 +44,10 @@ Use this final report shape after producing or verifying HTML.
 - Color:
 - Spacing:
 - Assets:
+- Asset slots:
+- Icons:
+- Shadows:
+- Responsive:
 
 ## Remaining Risks
 

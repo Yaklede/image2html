@@ -9,7 +9,9 @@
     "normalize": "node scripts/normalize-image.mjs",
     "render": "node scripts/render-html.mjs",
     "compare": "node scripts/compare-screenshots.mjs",
-    "a11y": "node scripts/check-accessibility.mjs"
+    "a11y": "node scripts/check-accessibility.mjs",
+    "inspect": "node scripts/inspect-layout.mjs",
+    "responsive": "node scripts/responsive-check.mjs"
   },
   "keywords": [
     "codex-skill",
