@@ -13,12 +13,33 @@ The goal is to guide an AI model through detailed image analysis, structured HTM
 ## What It Includes / 구성
 
 - `SKILL.md`: Codex skill entrypoint and workflow.
+- `dock.yml`: OpenDock release manifest for installing this as a Codex skill dock.
+- `DOCK.md`: OpenDock Hub detail-page README.
 - `references/analysis-schema.md`: structured image analysis contract.
 - `references/implementation-rules.md`: HTML/CSS implementation rules.
 - `references/fidelity-rubric.md`: scoring and pass/fail rubric.
 - `references/report-format.md`: final report format.
 - `scripts/`: Playwright-based render, screenshot comparison, accessibility, and full harness scripts.
 - `assets/templates/single-file.html`: standalone HTML starting template.
+
+## OpenDock Deploy / OpenDock 배포
+
+This repository is prepared as an OpenDock dock. The manifest installs the skill and harness under `.codex/skills/image2html/` in the target project, then installs npm dependencies inside that skill directory.
+
+이 저장소는 OpenDock dock으로 배포할 수 있도록 구성되어 있습니다. 설치 시 대상 프로젝트의 `.codex/skills/image2html/` 아래에 스킬과 하네스를 배치하고, 해당 스킬 디렉터리 내부에 npm 의존성을 설치합니다.
+
+Deploy for review:
+
+```bash
+opendock auth login
+opendock deploy yaklede/image2html@0.1.0 --file dock.yml
+```
+
+Installed files are checked with:
+
+```bash
+opendock doctor yaklede/image2html
+```
 
 ## Harness Usage / 하네스 실행
 
