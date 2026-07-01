@@ -24,21 +24,27 @@ The goal is to guide an AI model through detailed image analysis, structured HTM
 
 ## OpenDock Deploy / OpenDock 배포
 
-This repository is prepared as an OpenDock dock. The manifest installs the skill and harness under `.codex/skills/image2html/` in the target project, then installs npm dependencies inside that skill directory.
+This repository is prepared as an OpenDock dock. The manifest installs the skill and harness under `.codex/skills/image2html/` in the target project. It does not run package installation during OpenDock install; install harness dependencies manually only when you need to run verification.
 
-이 저장소는 OpenDock dock으로 배포할 수 있도록 구성되어 있습니다. 설치 시 대상 프로젝트의 `.codex/skills/image2html/` 아래에 스킬과 하네스를 배치하고, 해당 스킬 디렉터리 내부에 npm 의존성을 설치합니다.
+이 저장소는 OpenDock dock으로 배포할 수 있도록 구성되어 있습니다. 설치 시 대상 프로젝트의 `.codex/skills/image2html/` 아래에 스킬과 하네스를 배치합니다. OpenDock install 단계에서는 패키지 설치를 실행하지 않으며, 하네스 검증이 필요할 때만 사용자가 직접 의존성을 설치합니다.
 
 Deploy for review:
 
 ```bash
 opendock auth login
-opendock deploy yaklede/image2html@0.1.0 --file dock.yml
+opendock deploy yaklede/image2html@0.1.1 --file dock.yml
 ```
 
 Installed files are checked with:
 
 ```bash
 opendock doctor yaklede/image2html
+```
+
+Install harness dependencies after OpenDock install only when needed:
+
+```bash
+npm install --prefix .codex/skills/image2html
 ```
 
 ## Harness Usage / 하네스 실행
