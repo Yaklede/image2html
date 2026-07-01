@@ -34,6 +34,7 @@ function toUrl(input) {
 function normalizeExpectedItems(spec) {
   const groups = [
     ["components", spec.components || []],
+    ["nestedComponents", spec.nestedComponents || []],
     ["icons", spec.icons || []],
     ["regions", spec.regions || []],
     ["assetSlots", spec.assetSlots || []]
@@ -44,6 +45,7 @@ function normalizeExpectedItems(spec) {
       .map((item) => ({
         group,
         id: item.id,
+        parentId: item.parentId || null,
         bounds: item.bounds,
         tolerance: item.tolerance,
         shadow: item.shadow || null
@@ -61,6 +63,22 @@ function compareBounds(expected, actual, tolerance) {
   const abs = Object.values(deltas).map(Math.abs);
   const maxDelta = Number(Math.max(...abs).toFixed(2));
   return { deltas, maxDelta, pass: maxDelta <= tolerance };
+}
+
+function containsBounds(parent, child, tolerance) {
+  if (!parent || !child) return { containmentPass: false, containmentReason: "missing parent or child bounds" };
+  const overflows = {
+    left: Number((parent.x - child.x).toFixed(2)),
+    top: Number((parent.y - child.y).toFixed(2)),
+    right: Number((child.x + child.width - (parent.x + parent.width)).toFixed(2)),
+    bottom: Number((child.y + child.height - (parent.y + parent.height)).toFixed(2))
+  };
+  const maxOverflow = Number(Math.max(0, ...Object.values(overflows)).toFixed(2));
+  return {
+    containmentPass: maxOverflow <= tolerance,
+    containmentMaxOverflow: maxOverflow,
+    containmentOverflows: overflows
+  };
 }
 
 async function main() {
@@ -121,6 +139,7 @@ async function main() {
       return {
         group: item.group,
         id: item.id,
+        parentId: item.parentId,
         expected: item.bounds,
         actual: null,
         tolerance,
@@ -128,13 +147,23 @@ async function main() {
         reason: "missing data-i2h-id element"
       };
     }
+    const boundsResult = compareBounds(item.bounds, actual, tolerance);
+    const containment =
+      item.parentId && actualItems[item.parentId]
+        ? containsBounds(actualItems[item.parentId], actual, tolerance)
+        : item.parentId
+          ? { containmentPass: false, containmentReason: `missing parent data-i2h-id element "${item.parentId}"` }
+          : null;
     return {
       group: item.group,
       id: item.id,
+      parentId: item.parentId,
       expected: item.bounds,
       actual,
       tolerance,
-      ...compareBounds(item.bounds, actual, tolerance)
+      ...boundsResult,
+      ...(containment || {}),
+      pass: boundsResult.pass && (!containment || containment.containmentPass)
     };
   });
 

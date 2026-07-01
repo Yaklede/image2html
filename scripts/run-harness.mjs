@@ -98,7 +98,7 @@ function assetMasks(spec) {
     }));
 }
 
-async function prepareReference({ input, output, jsonOut, crop }) {
+async function prepareReference({ input, output, jsonOut, crop, resizeTo }) {
   await fs.mkdir(path.dirname(output), { recursive: true });
   if (jsonOut) await fs.mkdir(path.dirname(jsonOut), { recursive: true });
 
@@ -114,6 +114,14 @@ async function prepareReference({ input, output, jsonOut, crop }) {
     image = image.extract(normalizeBox(crop));
   }
 
+  if (resizeTo) {
+    image = image.resize({
+      width: Number(resizeTo.width),
+      height: Number(resizeTo.height),
+      fit: "fill"
+    });
+  }
+
   await image.png().toFile(output);
   const meta = await sharp(output).metadata();
   const report = {
@@ -125,6 +133,7 @@ async function prepareReference({ input, output, jsonOut, crop }) {
     channels: meta.channels,
     density: meta.density ?? null,
     crop: crop || null,
+    resizeTo: resizeTo || null,
     source: normalizedSource
   };
 
@@ -209,6 +218,7 @@ function expectedItems(spec) {
   return [
     ...(spec.regions || []),
     ...(spec.components || []),
+    ...(spec.nestedComponents || []).map((item) => ({ regionCompare: false, ...item })),
     ...(spec.icons || []),
     ...(spec.assetSlots || []).map((slot) => ({ regionCompare: false, ...slot }))
   ].filter((item) => item && item.id && item.bounds && item.required !== false);
@@ -333,6 +343,7 @@ function buildMarkdown(report) {
 - Checked: ${report.responsive.total}
 - Failed: ${report.responsive.failed}
 - Responsive JSON: ${report.outputs.responsive || "n/a"}
+- Responsive screenshots: ${report.outputs.responsiveScreenshots || "n/a"}
 `
     : "";
   const regionSection = report.regions
@@ -373,6 +384,7 @@ function buildMarkdown(report) {
 - HTML: ${report.html.input}
 - Viewport: ${report.viewport.width}x${report.viewport.height}
 - Crop: ${report.reference.crop ? `${report.reference.crop.x},${report.reference.crop.y},${report.reference.crop.width},${report.reference.crop.height}` : "none"}
+- Reference resized to viewport: ${report.reference.resizeTo ? `${report.reference.resizeTo.width}x${report.reference.resizeTo.height}` : "no"}
 - Automated score: ${report.score.automated}
 - Target score: ${report.score.target}
 - Result: ${report.pass ? "PASS" : "FAIL"}
@@ -424,6 +436,8 @@ async function main() {
   const threshold = String(args.threshold || 0.1);
   const crop = parseCrop(args.crop) || spec?.contentBounds || null;
   const responsiveMode = spec?.responsiveMode || "web-page";
+  const renderViewport = spec?.renderViewport || spec?.viewport || null;
+  const resizeReferenceToRenderViewport = Boolean(renderViewport && spec?.referenceTarget === "renderViewport");
 
   await fs.mkdir(outDir, { recursive: true });
 
@@ -445,8 +459,12 @@ async function main() {
     input: referenceInput,
     output: normalizedPath,
     jsonOut: normalizedJson,
-    crop
+    crop,
+    resizeTo: resizeReferenceToRenderViewport ? renderViewport : null
   });
+  const viewport = renderViewport
+    ? { width: Number(renderViewport.width), height: Number(renderViewport.height) }
+    : { width: reference.width, height: reference.height };
 
   const render = await runNode("render-html.mjs", [
     "--html",
@@ -456,9 +474,9 @@ async function main() {
     "--json",
     renderedJson,
     "--width",
-    String(reference.width),
+    String(viewport.width),
     "--height",
-    String(reference.height)
+    String(viewport.height)
   ]);
 
   const masks = args["mask-assets"] === "false" ? [] : assetMasks(spec);
@@ -507,9 +525,9 @@ async function main() {
     "--json",
     accessibilityJson,
     "--width",
-    String(reference.width),
+    String(viewport.width),
     "--height",
-    String(reference.height)
+    String(viewport.height)
   ]);
 
   const layout = spec
@@ -521,9 +539,9 @@ async function main() {
         "--json",
         layoutJson,
         "--width",
-        String(reference.width),
+        String(viewport.width),
         "--height",
-        String(reference.height),
+        String(viewport.height),
         "--tolerance",
         String(spec?.layoutTolerance ?? 8)
       ])
@@ -536,8 +554,10 @@ async function main() {
           htmlInput,
           "--json",
           responsiveJson,
+          "--out-dir",
+          path.join(outDir, "responsive"),
           "--viewports",
-          args.viewports || (spec.viewports || []).map((viewport) => `${viewport.width}x${viewport.height}`).join(",") || `${reference.width}x${reference.height},1280x900,390x844`
+          args.viewports || (spec.viewports || []).map((item) => `${item.width}x${item.height}`).join(",") || `${viewport.width}x${viewport.height},1280x900,390x844`
         ])
       : null;
 
@@ -569,7 +589,7 @@ async function main() {
     reference: { input: referenceInput, normalized: normalizedPath, ...reference },
     html: { input: htmlInput },
     spec: specPath,
-    viewport: { width: reference.width, height: reference.height },
+    viewport,
     render,
     compare,
     diagnostics,
@@ -610,6 +630,7 @@ async function main() {
       accessibility: accessibilityJson,
       layout: spec ? layoutJson : null,
       responsive: responsive ? responsiveJson : null,
+      responsiveScreenshots: responsive ? path.join(outDir, "responsive") : null,
       regions: regions ? path.join(outDir, "regions") : null,
       edgeDiff: diagnostics.outputs.edgeDiff,
       shadowDiff: diagnostics.outputs.shadowDiff

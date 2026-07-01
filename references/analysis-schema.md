@@ -27,6 +27,12 @@ Use this reference before writing HTML. Produce a compact structured inventory f
     }
   ],
   "responsiveMode": "web-page",
+  "renderViewport": {
+    "width": 1440,
+    "height": 900,
+    "reason": "actual browser viewport to render, independent from source image pixel size"
+  },
+  "referenceTarget": "renderViewport",
   "viewports": [
     { "width": 1440, "height": 812 },
     { "width": 1280, "height": 900 },
@@ -97,6 +103,15 @@ Use this reference before writing HTML. Produce a compact structured inventory f
       "visualNotes": "8px radius, solid fill"
     }
   ],
+  "nestedComponents": [
+    {
+      "id": "primary-button-label",
+      "parentId": "primary-button",
+      "bounds": { "x": 128, "y": 304, "width": 78, "height": 16 },
+      "tolerance": 8,
+      "notes": "nested child must stay inside the parent component"
+    }
+  ],
   "icons": [
     {
       "id": "icon-backend",
@@ -129,14 +144,70 @@ Use this reference before writing HTML. Produce a compact structured inventory f
 
 1. Identify the canvas size, safe area, and background treatment.
 2. If browser chrome, OS chrome, canvas padding, or presentation framing appears, record it as `excludedRegions` and set `contentBounds`.
-3. Segment the content image into major regions before naming components.
-4. Add `bounds` for every major region, repeated component family, and icon that must be validated.
-5. Inventory every visible text string that can be read.
-6. Estimate typography by relative hierarchy first, then pixel values.
-7. Sample colors from visible surfaces, text, borders, shadows, and accents.
-8. Record spacing using a consistent grid where possible.
-9. Distinguish code-native UI from asset slots.
-10. Log uncertainty instead of silently inventing details.
+3. Decide the actual browser `renderViewport`; do not default to source image size when the image is a framed export or scaled mockup.
+4. Use `referenceTarget: "renderViewport"` when the cropped reference should be resized to the actual browser viewport before comparison.
+5. Segment the content image into major regions before naming components.
+6. Add `bounds` for every major region, repeated component family, nested child component, and icon that must be validated.
+7. Inventory every visible text string that can be read.
+8. Estimate typography by relative hierarchy first, then pixel values.
+9. Sample colors from visible surfaces, text, borders, shadows, and accents.
+10. Record spacing using a consistent grid where possible.
+11. Distinguish code-native UI from asset slots.
+12. Log uncertainty instead of silently inventing details.
+
+## Multi-Image Site Manifest
+
+When the user provides multiple screenshots that belong to one site or app, create a site manifest in addition to any per-page analysis. The manifest is the contract for building and validating one cohesive product.
+
+```json
+{
+  "html": "index.html",
+  "renderViewport": { "width": 1440, "height": 1080 },
+  "contentBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1080,
+    "reason": "shared crop for all reference exports"
+  },
+  "referenceTarget": "renderViewport",
+  "minSimilarity": 0.86,
+  "viewports": [
+    { "width": 1440, "height": 1080 },
+    { "width": 1024, "height": 900 },
+    { "width": 390, "height": 844 }
+  ],
+  "responsiveRoutes": ["#/", "#/portfolio", "#/contact"],
+  "pages": [
+    {
+      "id": "home",
+      "route": "#/",
+      "reference": "reference/home.png",
+      "expectedText": ["Visible heading", "Primary CTA"]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "contact-form-success",
+      "route": "#/contact",
+      "steps": [
+        { "action": "fill", "selector": "#email", "value": "hello@example.com" },
+        { "action": "click", "selector": "button[type='submit']" },
+        { "action": "expectText", "text": "Message sent" }
+      ]
+    }
+  ]
+}
+```
+
+### Multi-Image Required Passes
+
+1. Cluster screenshots by shared site chrome and identify common components before implementing page-specific content.
+2. Map every screenshot to a route or UI state in one app.
+3. Identify interactions implied by the static images: navigation, active states, accordions, tabs, filters, forms, modals, pricing actions, newsletter signup, mobile menu, and 404 recovery.
+4. Implement shared components once. Do not copy header/footer markup separately per page unless the target is a static artifact.
+5. Include responsive routes that cover the most complex layouts, not only the homepage.
+6. Add interaction checks that prove the converted result feels like a working site rather than a screenshot gallery.
 
 ## Quality Rules
 
@@ -150,3 +221,8 @@ Use this reference before writing HTML. Produce a compact structured inventory f
 - Use `maskFill` to choose the neutral fill color used for both reference and rendered screenshots during masked comparison.
 - For web pages, default `responsiveMode` to `web-page`; use `fixed-artifact` only for posters, static mockups, or explicit fixed-canvas requests.
 - Use bounds relative to `contentBounds` for `regions`, `components`, and `icons`.
+- Use bounds relative to `renderViewport` when `referenceTarget` is `renderViewport`.
+- Record nested UI pieces such as button labels, card body blocks, card media, inner icons, tab labels, and input adornments in `nestedComponents` with `parentId` so containment can be verified.
+- `nestedComponents` are bbox/containment checks by default; set `regionCompare: true` only when pixel-level comparison is useful for a larger nested block.
+- Include at least one desktop, one tablet or narrow desktop, and one mobile viewport in `viewports` for web pages.
+- For multi-image sites, route-level screenshot similarity is necessary but insufficient; interaction pass/fail and responsive route checks are part of the quality gate.

@@ -1,0 +1,1667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brand - Multi Image Site</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --ink: #050506;
+        --text: #444753;
+        --muted: #555966;
+        --line: #dedfe3;
+        --line-soft: #ececef;
+        --button: #08090a;
+        --container: 1308px;
+        --radius: 4px;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+        letter-spacing: 0;
+      }
+
+      a,
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      svg {
+        display: block;
+      }
+
+      .site {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: min(var(--container), calc(100% - 140px));
+        margin: 0 auto;
+      }
+
+      .site-header {
+        height: 86px;
+        border-bottom: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .header-inner {
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+
+      .brand {
+        font-size: 32px;
+        line-height: 1;
+        font-weight: 800;
+      }
+
+      .site-nav {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 42px;
+      }
+
+      .nav-link {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        color: #0d0e10;
+        font-size: 15.5px;
+        line-height: 1;
+        font-weight: 500;
+      }
+
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 2px;
+        height: 2px;
+        background: #0b0b0c;
+        opacity: 0;
+        transform: scaleX(0.4);
+        transform-origin: center;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      .nav-link[data-nav-active="true"] {
+        font-weight: 700;
+      }
+
+      .nav-link[data-nav-active="true"]::after {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+
+      .header-cta {
+        margin-left: 44px;
+      }
+
+      .button {
+        min-width: 140px;
+        height: 43px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 28px;
+        border: 1px solid #111;
+        border-radius: var(--radius);
+        background: #fff;
+        color: #111;
+        font-size: 15.5px;
+        line-height: 1;
+        font-weight: 700;
+        transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      }
+
+      .button.dark {
+        border-color: #0b0c0d;
+        background: var(--button);
+        color: #fff;
+      }
+
+      .button:hover,
+      .button:focus-visible {
+        border-color: #000;
+        background: #f5f5f5;
+      }
+
+      .button.dark:hover,
+      .button.dark:focus-visible {
+        background: #242526;
+        color: #fff;
+      }
+
+      .mobile-toggle {
+        display: none;
+        width: 42px;
+        height: 38px;
+        margin-left: auto;
+        border: 1px solid #111;
+        border-radius: var(--radius);
+        background: #fff;
+      }
+
+      .mobile-toggle span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        margin: 5px auto;
+        background: #111;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .page {
+        display: none;
+        animation: page-in 280ms var(--ease);
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes page-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .page,
+        .modal-panel,
+        .drawer-panel {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      .section-title {
+        margin: 0;
+        color: #050506;
+        font-size: 58px;
+        line-height: 1.05;
+        font-weight: 800;
+      }
+
+      .center-title {
+        text-align: center;
+      }
+
+      .section-lead {
+        margin: 22px 0 0;
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.55;
+        font-weight: 400;
+      }
+
+      .page-home .hero {
+        height: 472px;
+        padding-top: 60px;
+      }
+
+      .page-home .hero-title {
+        max-width: 650px;
+        margin: 0;
+        font-size: 62px;
+        line-height: 1.18;
+        font-weight: 800;
+      }
+
+      .page-home .hero-copy {
+        max-width: 570px;
+        margin: 25px 0 0;
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.45;
+      }
+
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 23px;
+        margin-top: 27px;
+      }
+
+      .home-services {
+        height: 276px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .home-service {
+        padding: 39px 70px 30px;
+      }
+
+      .home-service + .home-service {
+        border-left: 1px solid var(--line);
+      }
+
+      .home-service svg,
+      .service-card svg,
+      .contact-icon svg {
+        width: 48px;
+        height: 48px;
+        fill: none;
+        stroke: #060607;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .home-service h2 {
+        margin: 22px 0 12px;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .home-service p {
+        max-width: 280px;
+        margin: 0;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.45;
+      }
+
+      .text-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        border: 0;
+        background: transparent;
+        color: #111;
+        font-size: 15px;
+        font-weight: 800;
+        padding: 0;
+      }
+
+      .about-intro {
+        min-height: 532px;
+        padding-top: 76px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 78px;
+      }
+
+      .about-copy {
+        padding-right: 16px;
+      }
+
+      .about-copy p {
+        max-width: 620px;
+        margin: 24px 0 0;
+        color: var(--text);
+        font-size: 20px;
+        line-height: 1.5;
+      }
+
+      .values {
+        border-left: 1px solid var(--line);
+        padding-left: 78px;
+      }
+
+      .values h2 {
+        margin: 12px 0 20px;
+        font-size: 23px;
+      }
+
+      .value-row {
+        display: grid;
+        grid-template-columns: 165px 1fr;
+        gap: 30px;
+        padding: 22px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .value-row:first-of-type {
+        border-top: 0;
+      }
+
+      .value-row strong {
+        font-size: 18px;
+      }
+
+      .value-row p {
+        margin: 0;
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.45;
+      }
+
+      .stats-band {
+        height: 208px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stats-grid {
+        height: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .stat {
+        padding: 37px 40px 24px 0;
+      }
+
+      .stat + .stat {
+        border-left: 1px solid var(--line);
+        padding-left: 42px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 54px;
+        line-height: 0.95;
+        font-weight: 800;
+      }
+
+      .stat b {
+        display: block;
+        margin-top: 10px;
+        font-size: 19px;
+      }
+
+      .stat p {
+        max-width: 280px;
+        margin: 11px 0 0;
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .services-page {
+        min-height: 757px;
+        padding-top: 58px;
+      }
+
+      .services-page .section-lead,
+      .faq-page .section-lead,
+      .pricing-page .section-lead {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      }
+
+      .service-grid {
+        max-width: 1080px;
+        margin: 36px auto 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .service-card {
+        min-height: 205px;
+        padding: 25px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fff;
+        transition: border-color 160ms ease, transform 160ms ease;
+      }
+
+      .service-card:hover {
+        border-color: #9e9fa5;
+        transform: translateY(-2px);
+      }
+
+      .service-card h2 {
+        margin: 20px 0 10px;
+        font-size: 21px;
+      }
+
+      .service-card p {
+        margin: 0;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.45;
+      }
+
+      .section-cta {
+        margin-top: 23px;
+        text-align: center;
+      }
+
+      .section-cta p {
+        margin: 14px 0 0;
+        color: var(--text);
+        font-size: 14.5px;
+      }
+
+      .listing-page {
+        min-height: 744px;
+        padding-top: 60px;
+      }
+
+      .listing-page .section-title {
+        font-size: 62px;
+      }
+
+      .listing-page .section-lead {
+        max-width: 560px;
+      }
+
+      .portfolio-tabs {
+        display: flex;
+        gap: 42px;
+        margin-top: 43px;
+      }
+
+      .tab-button {
+        position: relative;
+        border: 0;
+        background: transparent;
+        color: #111;
+        padding: 0 0 18px;
+        font-size: 15px;
+      }
+
+      .tab-button[data-selected="true"] {
+        font-weight: 700;
+      }
+
+      .tab-button[data-selected="true"]::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: #111;
+      }
+
+      .project-grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 34px 36px;
+      }
+
+      .project-card {
+        min-height: 164px;
+        padding: 28px 30px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fff;
+        text-align: left;
+        transition: border-color 160ms ease, transform 160ms ease;
+      }
+
+      .project-card:hover {
+        border-color: #9e9fa5;
+        transform: translateY(-2px);
+      }
+
+      .project-card h2 {
+        margin: 0;
+        font-size: 21px;
+      }
+
+      .project-card small {
+        display: block;
+        margin-top: 14px;
+        color: var(--text);
+        font-size: 14.5px;
+      }
+
+      .project-card p {
+        max-width: 310px;
+        margin: 14px 0 0;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.45;
+      }
+
+      .blog-list {
+        margin-top: 31px;
+      }
+
+      .post-row {
+        min-height: 123px;
+        display: grid;
+        grid-template-columns: 260px 1fr 230px;
+        gap: 36px;
+        align-items: start;
+        padding: 25px 0;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+      }
+
+      .post-row:first-child {
+        border-top: 0;
+      }
+
+      .post-row time,
+      .post-row span {
+        color: var(--text);
+        font-size: 15.5px;
+      }
+
+      .post-row h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .post-row p {
+        max-width: 540px;
+        margin: 12px 0 0;
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .article-page {
+        min-height: 784px;
+        padding-top: 29px;
+      }
+
+      .article-wrap {
+        width: min(642px, calc(100% - 48px));
+        margin: 0 auto;
+      }
+
+      .back-link {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .article-page h1 {
+        margin: 0;
+        font-size: 50px;
+        line-height: 1.08;
+        font-weight: 800;
+      }
+
+      .article-meta {
+        display: flex;
+        gap: 14px;
+        margin-top: 21px;
+        color: var(--text);
+        font-size: 14px;
+      }
+
+      .article-page p {
+        margin: 18px 0 0;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.48;
+      }
+
+      .article-page h2 {
+        margin: 28px 0 0;
+        font-size: 18px;
+      }
+
+      .contact-page {
+        min-height: 720px;
+        padding-top: 65px;
+      }
+
+      .contact-page .section-title {
+        font-size: 62px;
+      }
+
+      .contact-layout {
+        margin-top: 49px;
+        display: grid;
+        grid-template-columns: 455px 1fr;
+        gap: 84px;
+      }
+
+      .contact-info {
+        border-right: 1px solid var(--line);
+        padding-right: 67px;
+      }
+
+      .contact-info h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .contact-info > p {
+        margin: 16px 0 36px;
+        color: var(--text);
+        font-size: 17px;
+        line-height: 1.45;
+      }
+
+      .contact-method {
+        display: grid;
+        grid-template-columns: 70px 1fr;
+        gap: 22px;
+        align-items: center;
+        margin-top: 31px;
+      }
+
+      .contact-icon {
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #cdd0d7;
+        border-radius: var(--radius);
+      }
+
+      .contact-icon svg {
+        width: 34px;
+        height: 34px;
+      }
+
+      .contact-method b {
+        display: block;
+        font-size: 21px;
+      }
+
+      .contact-method span {
+        display: block;
+        margin-top: 8px;
+        color: var(--text);
+        font-size: 17px;
+        line-height: 1.35;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 23px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 10px;
+        color: #111;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .field input,
+      .field textarea,
+      .newsletter input {
+        width: 100%;
+        border: 1px solid #cfd2d8;
+        border-radius: var(--radius);
+        background: #fff;
+        color: #111;
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      .field input {
+        height: 45px;
+        padding: 0 14px;
+      }
+
+      .field textarea {
+        height: 116px;
+        padding: 14px;
+        resize: vertical;
+        line-height: 1.35;
+      }
+
+      .pricing-page {
+        min-height: 743px;
+        padding-top: 51px;
+      }
+
+      .pricing-page .section-title,
+      .faq-page .section-title {
+        font-size: 58px;
+      }
+
+      .pricing-grid {
+        max-width: 1010px;
+        margin: 50px auto 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 26px;
+      }
+
+      .price-card {
+        min-height: 485px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      .price-card.popular {
+        border-color: #111;
+      }
+
+      .popular-strip {
+        height: 32px;
+        display: grid;
+        place-items: center;
+        background: #050505;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .price-body {
+        padding: 38px 37px 27px;
+      }
+
+      .price-card.popular .price-body {
+        padding-top: 18px;
+      }
+
+      .price-body h2 {
+        margin: 0;
+        font-size: 26px;
+      }
+
+      .price-body > p {
+        min-height: 44px;
+        margin: 12px 0 27px;
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .price {
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+        font-size: 16px;
+        color: var(--text);
+      }
+
+      .price strong {
+        color: #050506;
+        font-size: 36px;
+      }
+
+      .feature-list {
+        margin: 29px 0 0;
+        padding: 26px 0 0;
+        border-top: 1px solid var(--line);
+        list-style: none;
+      }
+
+      .feature-list li {
+        margin: 12px 0;
+        color: #1b1c21;
+        font-size: 14px;
+      }
+
+      .price-card .button {
+        width: 100%;
+        margin-top: 29px;
+      }
+
+      .faq-page {
+        min-height: 698px;
+        padding-top: 81px;
+      }
+
+      .faq-list {
+        width: min(704px, 100%);
+        margin: 47px auto 0;
+        border: 1px solid var(--line);
+      }
+
+      .faq-item + .faq-item {
+        border-top: 1px solid var(--line);
+      }
+
+      .faq-trigger {
+        width: 100%;
+        min-height: 73px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 0;
+        background: #fff;
+        padding: 0 29px 0 32px;
+        text-align: left;
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      .faq-trigger .plus {
+        position: relative;
+        width: 19px;
+        height: 19px;
+      }
+
+      .faq-trigger .plus::before,
+      .faq-trigger .plus::after {
+        content: "";
+        position: absolute;
+        background: #111;
+      }
+
+      .faq-trigger .plus::before {
+        left: 0;
+        right: 0;
+        top: 9px;
+        height: 2px;
+      }
+
+      .faq-trigger .plus::after {
+        top: 0;
+        bottom: 0;
+        left: 9px;
+        width: 2px;
+        transition: transform 140ms ease;
+      }
+
+      .faq-item.open .plus::after {
+        transform: scaleY(0);
+      }
+
+      .faq-answer {
+        display: none;
+        padding: 0 32px 24px;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.5;
+      }
+
+      .faq-item.open .faq-answer {
+        display: block;
+      }
+
+      .not-found-page {
+        min-height: 720px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .not-found h1 {
+        margin: 0;
+        font-size: 156px;
+        line-height: 0.9;
+        font-weight: 800;
+      }
+
+      .not-found h2 {
+        margin: 35px 0 0;
+        font-size: 38px;
+      }
+
+      .not-found p {
+        margin: 22px 0 0;
+        color: var(--text);
+        font-size: 16px;
+        line-height: 1.45;
+      }
+
+      .not-found .button {
+        margin-top: 35px;
+      }
+
+      .site-footer {
+        border-top: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .footer-main {
+        min-height: 183px;
+        padding: 34px 0 26px;
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 0.95fr 1.1fr 1.15fr 2.05fr;
+        gap: 42px;
+      }
+
+      .footer-brand strong {
+        display: block;
+        font-size: 25px;
+        line-height: 1;
+      }
+
+      .footer-brand p,
+      .footer-col a,
+      .footer-news p,
+      .footer-bottom {
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .footer-brand p {
+        max-width: 250px;
+        margin: 18px 0 23px;
+      }
+
+      .socials {
+        display: flex;
+        gap: 24px;
+      }
+
+      .socials svg {
+        width: 20px;
+        height: 20px;
+        fill: #040405;
+      }
+
+      .footer-col h2,
+      .footer-news h2 {
+        margin: 0 0 14px;
+        font-size: 16px;
+      }
+
+      .footer-col a {
+        display: block;
+        margin-top: 9px;
+      }
+
+      .footer-col a.active-foot {
+        color: #050506;
+        font-weight: 800;
+      }
+
+      .footer-news p {
+        max-width: 320px;
+        margin: 0 0 14px;
+      }
+
+      .newsletter {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+
+      .newsletter input {
+        height: 40px;
+        padding: 0 14px;
+      }
+
+      .newsletter .button {
+        min-width: 94px;
+        height: 40px;
+        padding: 0 18px;
+        font-size: 14px;
+      }
+
+      .footer-bottom {
+        height: 67px;
+        border-top: 1px solid var(--line);
+      }
+
+      .footer-bottom .container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+
+      .legal {
+        margin-left: auto;
+        display: flex;
+        gap: 70px;
+      }
+
+      .modal,
+      .drawer {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: none;
+      }
+
+      .modal.open,
+      .drawer.open {
+        display: block;
+      }
+
+      .modal-backdrop,
+      .drawer-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.24);
+      }
+
+      .modal-panel {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(480px, calc(100% - 40px));
+        transform: translate(-50%, -50%);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 28px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+        animation: modal-in 180ms var(--ease);
+      }
+
+      @keyframes modal-in {
+        from {
+          opacity: 0;
+          transform: translate(-50%, calc(-50% + 8px));
+        }
+      }
+
+      .modal-panel h2 {
+        margin: 0;
+        font-size: 23px;
+      }
+
+      .modal-panel p {
+        margin: 12px 0 0;
+        color: var(--text);
+        font-size: 15.5px;
+        line-height: 1.45;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .drawer-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(310px, 86vw);
+        height: 100%;
+        background: #fff;
+        border-left: 1px solid var(--line);
+        padding: 28px;
+        animation: drawer-in 200ms var(--ease);
+      }
+
+      @keyframes drawer-in {
+        from {
+          transform: translateX(24px);
+          opacity: 0;
+        }
+      }
+
+      .drawer-panel nav {
+        display: grid;
+        gap: 22px;
+        margin-top: 34px;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          width: min(100% - 40px, 720px);
+        }
+
+        .site-header {
+          height: auto;
+          min-height: 76px;
+        }
+
+        .header-inner {
+          min-height: 76px;
+        }
+
+        .site-nav,
+        .header-cta {
+          display: none;
+        }
+
+        .mobile-toggle {
+          display: block;
+        }
+
+        .section-title,
+        .listing-page .section-title,
+        .contact-page .section-title,
+        .pricing-page .section-title,
+        .faq-page .section-title {
+          font-size: 44px;
+          line-height: 1.08;
+        }
+
+        .page-home .hero {
+          height: auto;
+          padding: 58px 0 54px;
+        }
+
+        .page-home .hero-title {
+          font-size: 44px;
+          line-height: 1.15;
+        }
+
+        .hero-actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .hero-actions .button {
+          width: 100%;
+        }
+
+        .home-services,
+        .stats-band {
+          height: auto;
+        }
+
+        .home-services,
+        .stats-grid,
+        .service-grid,
+        .project-grid,
+        .pricing-grid,
+        .footer-grid,
+        .about-intro,
+        .contact-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .home-service,
+        .home-service + .home-service,
+        .stat,
+        .stat + .stat {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          padding: 34px 0;
+        }
+
+        .about-intro,
+        .services-page,
+        .listing-page,
+        .contact-page,
+        .pricing-page,
+        .faq-page,
+        .article-page {
+          min-height: 0;
+          padding-top: 56px;
+          padding-bottom: 56px;
+        }
+
+        .values,
+        .contact-info {
+          border-left: 0;
+          border-right: 0;
+          border-top: 1px solid var(--line);
+          padding: 34px 0 0;
+        }
+
+        .value-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .post-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .newsletter {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-bottom {
+          height: auto;
+          padding: 22px 0;
+        }
+
+        .footer-bottom .container {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .legal {
+          margin-left: 0;
+          flex-wrap: wrap;
+          gap: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="site">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="#/" data-route="#/">Brand</a>
+          <nav class="site-nav" aria-label="Primary navigation">
+            <a class="nav-link" href="#/" data-route="#/" data-nav="home">Home</a>
+            <a class="nav-link" href="#/about" data-route="#/about" data-nav="about">About</a>
+            <a class="nav-link" href="#/services" data-route="#/services" data-nav="services">Services</a>
+            <a class="nav-link" href="#/portfolio" data-route="#/portfolio" data-nav="portfolio">Portfolio</a>
+            <a class="nav-link" href="#/blog" data-route="#/blog" data-nav="blog">Blog</a>
+            <a class="nav-link" href="#/contact" data-route="#/contact" data-nav="contact">Contact</a>
+          </nav>
+          <a class="button dark header-cta" href="#/pricing" data-route="#/pricing">Get Started</a>
+          <button class="mobile-toggle" type="button" data-open-drawer aria-label="Open menu">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </header>
+
+      <main id="main">
+        <section class="page page-home" data-page="home" aria-labelledby="home-title">
+          <div class="hero">
+            <div class="container">
+              <h1 class="hero-title" id="home-title">We create digital<br />products that make<br />an impact.</h1>
+              <p class="hero-copy">We partner with ambitious brands to design and build digital experiences that are user-centered, scalable, and built to drive meaningful results.</p>
+              <div class="hero-actions">
+                <a class="button dark" href="#/pricing" data-route="#/pricing">Get Started</a>
+                <a class="button" href="#/portfolio" data-route="#/portfolio">View Our Work</a>
+              </div>
+            </div>
+          </div>
+          <div class="home-services">
+            <article class="home-service">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="22" cy="25" r="16"></circle><circle cx="22" cy="25" r="9"></circle><circle cx="22" cy="25" r="3"></circle><path d="M31 16 39 8"></path><path d="m37 6 4-1-1 4"></path><path d="m34 12 4 4"></path></svg>
+              <h2>Strategy</h2>
+              <p>We uncover opportunities and define clear strategies that align business goals with user needs.</p>
+              <a class="text-link" href="#/services" data-route="#/services">Learn more <span aria-hidden="true">-&gt;</span></a>
+            </article>
+            <article class="home-service">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="12" width="24" height="30" rx="2"></rect><path d="m22 34 6-2 13-13-5-5-13 13-1 7Z"></path><path d="m33 17 5 5"></path></svg>
+              <h2>Design</h2>
+              <p>We craft intuitive, elegant designs that engage users and strengthen your brand identity.</p>
+              <a class="text-link" href="#/services" data-route="#/services">Learn more <span aria-hidden="true">-&gt;</span></a>
+            </article>
+            <article class="home-service">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="9" width="32" height="30" rx="1"></rect><path d="M8 16h32"></path><path d="m21 22-5 5 5 5"></path><path d="m29 22 5 5-5 5"></path></svg>
+              <h2>Development</h2>
+              <p>We build fast, secure, and scalable solutions using modern technologies and best practices.</p>
+              <a class="text-link" href="#/services" data-route="#/services">Learn more <span aria-hidden="true">-&gt;</span></a>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" data-page="about" aria-labelledby="about-title">
+          <div class="container about-intro">
+            <div class="about-copy">
+              <h1 class="section-title" id="about-title">About Us</h1>
+              <p>We are a digital product studio passionate about helping businesses turn ideas into powerful, user-centered solutions. Our team combines strategy, design, and technology to build products that are not only beautiful but built to make a real impact.</p>
+              <p>Since our inception, we&rsquo;ve partnered with startups, scale-ups, and enterprises to deliver digital experiences that drive growth, improve efficiency, and delight users.</p>
+              <div class="hero-actions">
+                <a class="button dark" href="#/pricing" data-route="#/pricing">Get Started</a>
+                <a class="button" href="#/portfolio" data-route="#/portfolio">View Our Work</a>
+              </div>
+            </div>
+            <div class="values">
+              <h2>Our Values</h2>
+              <div class="value-row"><strong>Quality</strong><p>We are committed to excellence in every detail of our work.</p></div>
+              <div class="value-row"><strong>Collaboration</strong><p>We work closely with our clients as true partners to achieve shared goals.</p></div>
+              <div class="value-row"><strong>Innovation</strong><p>We embrace new ideas and technologies to create better solutions.</p></div>
+              <div class="value-row"><strong>Reliability</strong><p>We deliver on our promises and build relationships based on trust.</p></div>
+            </div>
+          </div>
+          <div class="stats-band">
+            <div class="container stats-grid">
+              <article class="stat"><strong>10+</strong><b>Years Experience</b><p>A decade of delivering impactful digital solutions.</p></article>
+              <article class="stat"><strong>250+</strong><b>Projects Completed</b><p>Successful projects across industries and markets.</p></article>
+              <article class="stat"><strong>150+</strong><b>Happy Clients</b><p>Trusted by startups, scale-ups, and enterprises worldwide.</p></article>
+              <article class="stat"><strong>25+</strong><b>Awards Received</b><p>Recognized for design, innovation, and outstanding results.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="services" aria-labelledby="services-title">
+          <div class="container services-page">
+            <h1 class="section-title center-title" id="services-title">Our Services</h1>
+            <p class="section-lead">We help businesses turn ideas into powerful digital products through strategy, design, and development.</p>
+            <div class="service-grid">
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="22" cy="25" r="16"></circle><circle cx="22" cy="25" r="9"></circle><circle cx="22" cy="25" r="3"></circle><path d="M31 16 39 8"></path><path d="m37 6 4-1-1 4"></path></svg><h2>Product Strategy</h2><p>We uncover opportunities and define clear strategies that align business goals with user needs.</p></article>
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="12" width="24" height="30" rx="2"></rect><path d="m22 34 6-2 13-13-5-5-13 13-1 7Z"></path></svg><h2>UI/UX Design</h2><p>We craft intuitive, elegant designs that engage users and strengthen your brand identity.</p></article>
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="9" width="32" height="30" rx="1"></rect><path d="M8 16h32"></path><path d="m21 22-5 5 5 5"></path><path d="m29 22 5 5-5 5"></path></svg><h2>Web Development</h2><p>We build fast, secure, and scalable web applications using modern technologies and best practices.</p></article>
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m10 25 16-16 12 12-16 16-12-12Z"></path><path d="M31 14h.01"></path></svg><h2>Branding</h2><p>We create memorable brand identities that communicate your values and resonate with your audience.</p></article>
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="21" cy="21" r="14"></circle><path d="m31 31 9 9"></path></svg><h2>SEO Optimization</h2><p>We improve your search visibility and drive organic traffic with proven SEO strategies.</p></article>
+              <article class="service-card"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="7"></circle><path d="M24 5v7M24 36v7M5 24h7M36 24h7M10.6 10.6l5 5M32.4 32.4l5 5M37.4 10.6l-5 5M15.6 32.4l-5 5"></path></svg><h2>Maintenance</h2><p>We provide ongoing support and maintenance to keep your product secure, reliable, and up to date.</p></article>
+            </div>
+            <div class="section-cta">
+              <a class="button dark" href="#/contact" data-route="#/contact">Let&rsquo;s Work Together</a>
+              <p>Have a project in mind? Let&rsquo;s discuss how we can help.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="portfolio" aria-labelledby="portfolio-title">
+          <div class="container listing-page">
+            <h1 class="section-title" id="portfolio-title">Our Work</h1>
+            <p class="section-lead">Explore a selection of our recent projects. Each one reflects our commitment to thoughtful design and meaningful results.</p>
+            <div class="portfolio-tabs" role="tablist" aria-label="Project filters">
+              <button class="tab-button" type="button" data-filter="all" data-selected="true">All</button>
+              <button class="tab-button" type="button" data-filter="web">Web</button>
+              <button class="tab-button" type="button" data-filter="mobile">Mobile</button>
+              <button class="tab-button" type="button" data-filter="branding">Branding</button>
+            </div>
+            <div class="project-grid">
+              <button class="project-card" type="button" data-project data-project-id="metrics" data-kind="web"><h2>Metrics Dashboard</h2><small>Web</small><p>Real-time analytics dashboard for data-driven decision making.</p></button>
+              <button class="project-card" type="button" data-project data-project-id="nexora" data-kind="mobile"><h2>Nexora Mobile App</h2><small>Mobile</small><p>A seamless mobile experience for modern productivity.</p></button>
+              <button class="project-card" type="button" data-project data-project-id="vertex" data-kind="branding"><h2>Vertex Brand Identity</h2><small>Branding</small><p>A bold new identity for a forward-thinking technology company.</p></button>
+              <button class="project-card" type="button" data-project data-project-id="flow" data-kind="web"><h2>Flow CMS Platform</h2><small>Web</small><p>A scalable content management system built for growth.</p></button>
+              <button class="project-card" type="button" data-project data-project-id="pace" data-kind="mobile"><h2>Pace Finance App</h2><small>Mobile</small><p>Personal finance made simple, secure, and intuitive.</p></button>
+              <button class="project-card" type="button" data-project data-project-id="horizon" data-kind="branding"><h2>Horizon Brand Refresh</h2><small>Branding</small><p>A refreshed brand identity for a legacy company&rsquo;s next chapter.</p></button>
+            </div>
+            <button class="button" type="button" data-open-modal data-modal-title="All projects" data-modal-body="The full project archive is ready for review. Filters and cards remain interactive in this converted site.">View All Projects</button>
+          </div>
+        </section>
+
+        <section class="page" data-page="blog" aria-labelledby="blog-title">
+          <div class="container listing-page">
+            <h1 class="section-title" id="blog-title">Our Blog</h1>
+            <p class="section-lead">Insights, ideas, and best practices to help you build better digital products and experiences.</p>
+            <div class="blog-list">
+              <a class="post-row" href="#/article/designing-better-user-experiences" data-route="#/article/designing-better-user-experiences"><time>May 20, 2024</time><div><h2>The Future of Digital Products</h2><p>Explore emerging trends and technologies shaping the next generation of digital products and user experiences.</p></div><span>Strategy</span></a>
+              <a class="post-row" href="#/article/designing-better-user-experiences" data-route="#/article/designing-better-user-experiences"><time>May 6, 2024</time><div><h2>Designing for Clarity and Impact</h2><p>Learn how intentional design decisions can improve usability, build trust, and drive meaningful results.</p></div><span>Design</span></a>
+              <a class="post-row" href="#/article/designing-better-user-experiences" data-route="#/article/designing-better-user-experiences"><time>April 22, 2024</time><div><h2>Building Scalable Digital Solutions</h2><p>Discover practical approaches to architecting and developing solutions that grow with your business.</p></div><span>Development</span></a>
+              <a class="post-row" href="#/article/designing-better-user-experiences" data-route="#/article/designing-better-user-experiences"><time>April 8, 2024</time><div><h2>Measuring What Matters</h2><p>A guide to tracking the right metrics that align with your goals and demonstrate real impact.</p></div><span>Strategy</span></a>
+            </div>
+            <button class="button" type="button" data-open-modal data-modal-title="All posts" data-modal-body="More articles can be loaded here while preserving the same list layout and routing model.">View All Posts</button>
+          </div>
+        </section>
+
+        <article class="page article-page" data-page="article" aria-labelledby="article-title">
+          <div class="article-wrap">
+            <a class="back-link" href="#/blog" data-route="#/blog">&lt;- Back to Blog</a>
+            <h1 id="article-title">Designing Better<br />User Experiences</h1>
+            <div class="article-meta"><span>May 20, 2024</span><span>&bull;</span><span>Design</span></div>
+            <p>Great user experience design isn&rsquo;t just about how something looks-it&rsquo;s about how it works. It&rsquo;s about creating products that are intuitive, accessible, and genuinely helpful to the people who use them.</p>
+            <h2>1. Start with Empathy</h2>
+            <p>The best designs begin with understanding. Take the time to research your users, learn about their goals, challenges, and behaviors. Empathy helps you move beyond assumptions and design solutions that truly meet real needs.</p>
+            <h2>2. Keep It Simple</h2>
+            <p>Simplicity is not about having less-it&rsquo;s about making room for what matters most. Clear layouts, thoughtful content hierarchy, and intuitive navigation help users focus and accomplish their goals with ease.</p>
+            <h2>3. Design for Consistency</h2>
+            <p>Consistency builds familiarity, and familiarity builds trust. Use consistent patterns, components, and interactions across your product to create a seamless experience that feels natural and predictable.</p>
+            <h2>4. Test, Learn, and Iterate</h2>
+            <p>No design is perfect on the first try. Testing your ideas with real users, gathering feedback, and iterating help you refine the experience and uncover opportunities for improvement.</p>
+            <h2>In Conclusion</h2>
+            <p>Designing better user experiences is an ongoing process of listening, simplifying, and improving. When we put users at the center of our decisions, we create digital products that don&rsquo;t just look good-they make a meaningful impact.</p>
+          </div>
+        </article>
+
+        <section class="page" data-page="contact" aria-labelledby="contact-title">
+          <div class="container contact-page">
+            <h1 class="section-title" id="contact-title">Let&rsquo;s work together</h1>
+            <p class="section-lead">Have a project in mind or want to learn more about how we can help?<br />We&rsquo;d love to hear from you.</p>
+            <div class="contact-layout">
+              <div class="contact-info">
+                <h2>Get in touch</h2>
+                <p>We&rsquo;re here to answer your questions and help you build something great.</p>
+                <div class="contact-method"><span class="contact-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="13" width="30" height="22" rx="1"></rect><path d="m10 15 14 12 14-12"></path></svg></span><div><b>Email</b><span>hello@brand.com</span></div></div>
+                <div class="contact-method"><span class="contact-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 10c4 12 11 19 23 23l-3 6c-14-3-24-13-27-27l7-2Z"></path><path d="M16 11l4 8-4 4"></path></svg></span><div><b>Phone</b><span>+1 (555) 123-4567</span></div></div>
+                <div class="contact-method"><span class="contact-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 42s14-13 14-25A14 14 0 0 0 10 17c0 12 14 25 14 25Z"></path><circle cx="24" cy="17" r="4"></circle></svg></span><div><b>Location</b><span>123 Business Street<br />New York, NY 10001, USA</span></div></div>
+              </div>
+              <form class="form-grid" data-contact-form>
+                <div class="field"><label for="name">Name</label><input id="name" name="name" placeholder="Your name" required /></div>
+                <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" placeholder="Your email" required /></div>
+                <div class="field"><label for="message">Message</label><textarea id="message" name="message" placeholder="Tell us about your project..." required></textarea></div>
+                <button class="button dark" type="submit">Send Message</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="pricing" aria-labelledby="pricing-title">
+          <div class="container pricing-page">
+            <h1 class="section-title center-title" id="pricing-title">Pricing Plans</h1>
+            <p class="section-lead">Simple, transparent pricing that scales with your business.<br />Choose the plan that&rsquo;s right for you.</p>
+            <div class="pricing-grid">
+              <article class="price-card"><div class="price-body"><h2>Basic</h2><p>Perfect for small projects and getting started.</p><div class="price"><strong>$29</strong><span>/ month</span></div><ul class="feature-list"><li>✓ &nbsp; Up to 3 projects</li><li>✓ &nbsp; 5GB storage</li><li>✓ &nbsp; Basic analytics</li><li>✓ &nbsp; Email support</li><li>✓ &nbsp; Community access</li></ul><button class="button" type="button" data-plan="Basic">Get Started</button></div></article>
+              <article class="price-card popular"><div class="popular-strip">Most Popular</div><div class="price-body"><h2>Pro</h2><p>Great for growing teams and businesses.</p><div class="price"><strong>$79</strong><span>/ month</span></div><ul class="feature-list"><li>✓ &nbsp; Up to 15 projects</li><li>✓ &nbsp; 50GB storage</li><li>✓ &nbsp; Advanced analytics</li><li>✓ &nbsp; Priority email support</li><li>✓ &nbsp; Team collaboration</li><li>✓ &nbsp; API access</li></ul><button class="button dark" type="button" data-plan="Pro">Get Started</button></div></article>
+              <article class="price-card"><div class="price-body"><h2>Enterprise</h2><p>Custom solutions for large organizations.</p><div class="price"><strong>Custom</strong><span>/ month</span></div><ul class="feature-list"><li>✓ &nbsp; Unlimited projects</li><li>✓ &nbsp; Unlimited storage</li><li>✓ &nbsp; Advanced analytics</li><li>✓ &nbsp; Dedicated support</li><li>✓ &nbsp; Team collaboration</li><li>✓ &nbsp; API access</li><li>✓ &nbsp; Custom integrations</li></ul><button class="button" type="button" data-plan="Enterprise">Contact Sales</button></div></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="faq" aria-labelledby="faq-title">
+          <div class="container faq-page">
+            <h1 class="section-title center-title" id="faq-title">Frequently Asked Questions</h1>
+            <p class="section-lead">Find answers to common questions about our services, process,<br />and how we help bring your ideas to life.</p>
+            <div class="faq-list">
+              <div class="faq-item"><button class="faq-trigger" type="button">What services do you offer?<span class="plus"></span></button><div class="faq-answer">We offer product strategy, UI/UX design, web development, branding, SEO optimization, and maintenance.</div></div>
+              <div class="faq-item"><button class="faq-trigger" type="button">How does your process work?<span class="plus"></span></button><div class="faq-answer">We start with discovery, define the scope, design the core experience, build iteratively, and validate before launch.</div></div>
+              <div class="faq-item"><button class="faq-trigger" type="button">How long does a project take?<span class="plus"></span></button><div class="faq-answer">Most projects take four to twelve weeks depending on scope, complexity, and review cycles.</div></div>
+              <div class="faq-item"><button class="faq-trigger" type="button">What is your pricing structure?<span class="plus"></span></button><div class="faq-answer">Pricing depends on project size. Fixed packages are available, and larger engagements are scoped after discovery.</div></div>
+              <div class="faq-item"><button class="faq-trigger" type="button">Do you work with startups?<span class="plus"></span></button><div class="faq-answer">Yes. We work with startups, scale-ups, and established teams that need thoughtful digital products.</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="not-found" aria-labelledby="not-found-title">
+          <div class="container not-found-page">
+            <div class="not-found">
+              <h1 id="not-found-title">404</h1>
+              <h2>Page Not Found</h2>
+              <p>Sorry, we can&rsquo;t find the page you&rsquo;re looking for.<br />It may have been moved, deleted, or never existed.</p>
+              <a class="button dark" href="#/" data-route="#/">Go Home</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-main">
+          <div class="container footer-grid">
+            <div class="footer-brand">
+              <strong>Brand</strong>
+              <p>We help companies turn ideas into powerful digital products.</p>
+              <div class="socials" aria-label="Social links">
+                <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M5 8h3v11H5V8Zm1.5-5A1.8 1.8 0 1 1 6.5 6.6 1.8 1.8 0 0 1 6.5 3ZM10 8h3v1.7c.7-1.1 1.9-2 3.6-2 3 0 4.4 2 4.4 5.1V19h-3v-5.7c0-1.8-.7-2.9-2.3-2.9-1.5 0-2.6 1.1-2.6 3V19h-3V8Z"></path></svg></a>
+                <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M21 6.1c-.7.3-1.4.5-2.2.6.8-.5 1.3-1.2 1.6-2.1-.7.4-1.5.8-2.4.9A3.8 3.8 0 0 0 11.5 9c0 .3 0 .6.1.9A10.8 10.8 0 0 1 3.8 6s-3.5 7.8 4 11.1c-1 .7-2.3 1.1-3.6 1.1C11.7 22 19.7 18 19.7 8.9v-.5c.6-.5 1-1.3 1.3-2.3Z"></path></svg></a>
+                <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.2 19c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5A3.9 3.9 0 0 1 6.8 7c-.1-.3-.5-1.3.1-2.8 0 0 .9-.3 2.9 1.1a9.9 9.9 0 0 1 5.3 0c2-1.4 2.9-1.1 2.9-1.1.6 1.5.2 2.5.1 2.8a3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.6 5 .4.3.8 1 .8 2.1v3.1c0 .3.2.6.8.5A10 10 0 0 0 12 2Z"></path></svg></a>
+                <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm6-.4a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"></path></svg></a>
+              </div>
+            </div>
+            <div class="footer-col"><h2>Company</h2><a href="#/about" data-route="#/about">About</a><a href="#/about" data-route="#/about">Careers</a><a href="#/services" data-route="#/services">Process</a><a href="#/blog" data-route="#/blog">News</a></div>
+            <div class="footer-col"><h2>Services</h2><a href="#/services" data-route="#/services">Strategy</a><a href="#/services" data-route="#/services">Design</a><a href="#/services" data-route="#/services">Development</a><a href="#/services" data-route="#/services">Consulting</a></div>
+            <div class="footer-col"><h2>Resources</h2><a href="#/blog" data-route="#/blog" data-foot="blog">Blog</a><a href="#/portfolio" data-route="#/portfolio">Case Studies</a><a href="#/blog" data-route="#/blog">Guides</a><a href="#/faq" data-route="#/faq" data-foot="faq">FAQ</a></div>
+            <div class="footer-news">
+              <h2>Stay Updated</h2>
+              <p>Subscribe to our newsletter for the latest insights and updates.</p>
+              <form class="newsletter" data-newsletter-form>
+                <input name="newsletter" type="email" placeholder="Enter your email" required />
+                <button class="button dark" type="submit">Subscribe</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="container">
+            <span>&copy; 2024 Brand. All rights reserved.</span>
+            <div class="legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Sitemap</a></div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div class="modal" data-modal aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title">Message sent</h2>
+        <p data-modal-body>Thanks. We will follow up shortly.</p>
+        <div class="modal-actions">
+          <button class="button dark" type="button" data-close-modal>Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer" data-drawer aria-hidden="true">
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <div class="drawer-panel">
+        <strong class="brand">Brand</strong>
+        <nav aria-label="Mobile navigation">
+          <a href="#/" data-route="#/">Home</a>
+          <a href="#/about" data-route="#/about">About</a>
+          <a href="#/services" data-route="#/services">Services</a>
+          <a href="#/portfolio" data-route="#/portfolio">Portfolio</a>
+          <a href="#/blog" data-route="#/blog">Blog</a>
+          <a href="#/contact" data-route="#/contact">Contact</a>
+          <a class="button dark" href="#/pricing" data-route="#/pricing">Get Started</a>
+        </nav>
+      </div>
+    </div>
+
+    <script>
+      const routeMap = {
+        "#/": { page: "home", nav: "home" },
+        "#/about": { page: "about", nav: "about" },
+        "#/services": { page: "services", nav: "services" },
+        "#/portfolio": { page: "portfolio", nav: "portfolio" },
+        "#/blog": { page: "blog", nav: "blog" },
+        "#/article/designing-better-user-experiences": { page: "article", nav: "blog" },
+        "#/contact": { page: "contact", nav: "contact" },
+        "#/pricing": { page: "pricing", nav: "home" },
+        "#/faq": { page: "faq", nav: "home" },
+        "#/404": { page: "not-found", nav: "home" }
+      };
+
+      const modal = document.querySelector("[data-modal]");
+      const modalTitle = document.querySelector("#modal-title");
+      const modalBody = document.querySelector("[data-modal-body]");
+      const drawer = document.querySelector("[data-drawer]");
+
+      function normalizeRoute(hash) {
+        return hash && hash !== "#" ? hash : "#/";
+      }
+
+      function renderRoute() {
+        const route = normalizeRoute(window.location.hash);
+        const state = routeMap[route] || routeMap["#/404"];
+        document.querySelectorAll("[data-page]").forEach((page) => {
+          page.classList.toggle("active", page.dataset.page === state.page);
+        });
+        document.querySelectorAll("[data-nav]").forEach((link) => {
+          const active = link.dataset.nav === state.nav;
+          link.dataset.navActive = active ? "true" : "false";
+          if (active) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+        document.querySelectorAll("[data-foot]").forEach((link) => {
+          link.classList.toggle("active-foot", (state.page === "faq" && link.dataset.foot === "faq") || (state.page === "blog" && link.dataset.foot === "blog"));
+        });
+        document.title = state.page === "not-found" ? "404 - Brand" : "Brand - " + state.page.charAt(0).toUpperCase() + state.page.slice(1);
+        closeDrawer();
+      }
+
+      function openModal(title, body) {
+        modalTitle.textContent = title;
+        modalBody.textContent = body;
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal() {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function openDrawer() {
+        drawer.classList.add("open");
+        drawer.setAttribute("aria-hidden", "false");
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove("open");
+        drawer.setAttribute("aria-hidden", "true");
+      }
+
+      document.addEventListener("click", (event) => {
+        const routeLink = event.target.closest("[data-route]");
+        if (routeLink) {
+          event.preventDefault();
+          window.location.hash = routeLink.dataset.route;
+        }
+
+        const filterButton = event.target.closest("[data-filter]");
+        if (filterButton) {
+          const filter = filterButton.dataset.filter;
+          document.querySelectorAll("[data-filter]").forEach((button) => {
+            button.dataset.selected = button === filterButton ? "true" : "false";
+          });
+          document.querySelectorAll("[data-project]").forEach((card) => {
+            card.hidden = filter !== "all" && card.dataset.kind !== filter;
+          });
+        }
+
+        const project = event.target.closest("[data-project]");
+        if (project) {
+          openModal(project.querySelector("h2").textContent, project.querySelector("p").textContent);
+        }
+
+        const faqTrigger = event.target.closest(".faq-trigger");
+        if (faqTrigger) {
+          faqTrigger.closest(".faq-item").classList.toggle("open");
+        }
+
+        const modalOpener = event.target.closest("[data-open-modal]");
+        if (modalOpener) {
+          openModal(modalOpener.dataset.modalTitle || "Details", modalOpener.dataset.modalBody || "More information is available.");
+        }
+
+        const planButton = event.target.closest("[data-plan]");
+        if (planButton) {
+          openModal(planButton.dataset.plan + " plan", "This selected plan is ready to continue into a checkout or sales workflow.");
+        }
+
+        if (event.target.closest("[data-close-modal]")) closeModal();
+        if (event.target.closest("[data-open-drawer]")) openDrawer();
+        if (event.target.closest("[data-close-drawer]")) closeDrawer();
+      });
+
+      document.querySelector("[data-contact-form]").addEventListener("submit", (event) => {
+        event.preventDefault();
+        openModal("Message sent", "Thanks for reaching out. We will reply with next steps shortly.");
+        event.currentTarget.reset();
+      });
+
+      document.querySelector("[data-newsletter-form]").addEventListener("submit", (event) => {
+        event.preventDefault();
+        openModal("Subscribed", "You are now on the newsletter list for product and design updates.");
+        event.currentTarget.reset();
+      });
+
+      window.addEventListener("hashchange", renderRoute);
+      renderRoute();
+    </script>
+  </body>
+</html>

@@ -36,7 +36,17 @@ npm run harness -- --reference path/to/reference.png --html path/to/output.html 
 
 Use `--crop x,y,width,height` when the reference includes browser chrome but no spec exists.
 
-The harness crops the source image when `contentBounds` is provided, renders the HTML at the content viewport, captures a screenshot, compares it against the reference image, inspects component bounding boxes, runs region-level diffs, runs edge/shadow diagnostics, checks responsive overflow, runs accessibility checks, and writes:
+Run the multi-image site harness:
+
+```bash
+npm run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
+```
+
+여러 장의 이미지가 같은 제품/웹사이트의 서로 다른 화면을 나타내는 경우, 결과물은 각각 따로 떨어진 HTML이 아니라 하나의 동작 가능한 사이트여야 합니다. 공통 헤더/푸터/네비게이션/컴포넌트를 공유하고, 각 이미지는 route 또는 state로 매핑합니다.
+
+When multiple images describe different screens of the same site, the output should be one functional site, not disconnected static HTML pages. Shared header, footer, navigation, components, responsive behavior, and stateful interactions should be implemented once and reused across routes.
+
+The harness crops the source image when `contentBounds` is provided, optionally normalizes it to `renderViewport`, renders the HTML at the intended browser viewport, captures a screenshot, compares it against the reference image, inspects component and nested-component bounding boxes, runs region-level diffs, runs edge/shadow diagnostics, checks responsive overflow/clipping, runs accessibility checks, and writes:
 
 - `.image2html-report/reference.png`
 - `.image2html-report/rendered.png`
@@ -45,8 +55,43 @@ The harness crops the source image when `contentBounds` is provided, renders the
 - `.image2html-report/shadow-diff.png`
 - `.image2html-report/layout.json`
 - `.image2html-report/responsive.json`
+- `.image2html-report/responsive/*.png`
 - `.image2html-report/report.json`
 - `.image2html-report/report.md`
+
+The site harness additionally validates:
+
+- route-to-reference screenshot similarity
+- shared navigation active states
+- responsive screenshots across selected routes
+- no horizontal overflow on desktop/mobile
+- interaction flows such as forms, filters, accordions, modals, pricing CTAs, mobile menus, and 404 recovery
+
+## Example Output / 변환 예시
+
+아래 예시는 10장의 웹사이트 화면 이미지를 입력으로 받아 하나의 동작 가능한 HTML 사이트로 변환한 결과입니다. 각 이미지는 개별 HTML 파일이 아니라 하나의 사이트 안에서 route와 state로 연결되며, 공통 header/footer/navigation, modal, accordion, filter, form success state, mobile drawer, 404 recovery까지 구현합니다.
+
+The sample below converts 10 website screenshots into one functional HTML site. The screens are connected as routes and states inside a single site, with shared layout, responsive behavior, modals, accordions, filters, form feedback, a mobile drawer, and 404 recovery.
+
+- Source images / 입력 이미지: `tests/brand-site/reference/`
+- Generated site / 변환 결과: `tests/brand-site/index.html`
+- Harness manifest / 검증 매니페스트: `tests/brand-site/site-manifest.json`
+- Verification report / 검증 리포트: `tests/brand-site/report/report.md`
+- Result / 결과: average similarity `0.9315`, pages `10/10`, responsive checks `12/12`, interactions `6/6`
+
+Run the committed sample:
+
+```bash
+python3 -m http.server 5501 --bind 127.0.0.1
+open http://127.0.0.1:5501/tests/brand-site/index.html#/
+```
+
+| Reference Image / 입력 이미지 | Generated HTML Render / HTML 변환 결과 |
+| --- | --- |
+| <img src="tests/brand-site/reference/home.png" width="420" alt="Home page reference screenshot"> | <img src="tests/brand-site/report/pages/home/rendered.png" width="420" alt="Generated home page HTML render"> |
+| <img src="tests/brand-site/reference/pricing.png" width="420" alt="Pricing page reference screenshot"> | <img src="tests/brand-site/report/pages/pricing/rendered.png" width="420" alt="Generated pricing page HTML render"> |
+| <img src="tests/brand-site/reference/contact.png" width="420" alt="Contact page reference screenshot"> | <img src="tests/brand-site/report/pages/contact/rendered.png" width="420" alt="Generated contact page HTML render"> |
+| <img src="tests/brand-site/reference/portfolio.png" width="420" alt="Portfolio page reference screenshot"> | <img src="tests/brand-site/report/pages/portfolio/rendered.png" width="420" alt="Generated portfolio page HTML render"> |
 
 ## Quality Target / 품질 기준
 
@@ -58,6 +103,7 @@ The automated score combines:
 - viewport/dimension agreement
 - region-level similarity
 - DOM bounding-box agreement through `data-i2h-id`
+- nested component containment through `parentId`
 - edge/shadow diagnostics
 - responsive sanity
 - accessibility violations

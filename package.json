@@ -11,7 +11,8 @@
     "compare": "node scripts/compare-screenshots.mjs",
     "a11y": "node scripts/check-accessibility.mjs",
     "inspect": "node scripts/inspect-layout.mjs",
-    "responsive": "node scripts/responsive-check.mjs"
+    "responsive": "node scripts/responsive-check.mjs",
+    "site-harness": "node scripts/run-site-harness.mjs"
   },
   "keywords": [
     "codex-skill",

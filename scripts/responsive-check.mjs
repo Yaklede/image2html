@@ -46,20 +46,24 @@ function parseViewports(value) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
-    process.stdout.write("Usage: node scripts/responsive-check.mjs --html output.html --json responsive.json [--viewports 1440x900,390x844]\n");
+    process.stdout.write("Usage: node scripts/responsive-check.mjs --html output.html --json responsive.json [--viewports 1440x900,390x844] [--out-dir responsive]\n");
     return;
   }
 
   const html = requireArg(args, "html");
   const jsonOut = args.json ? path.resolve(args.json) : null;
+  const outDir = args["out-dir"] ? path.resolve(args["out-dir"]) : null;
   const viewports = parseViewports(args.viewports);
   if (jsonOut) await fs.mkdir(path.dirname(jsonOut), { recursive: true });
+  if (outDir) await fs.mkdir(outDir, { recursive: true });
 
   const browser = await chromium.launch();
   const results = [];
   for (const viewport of viewports) {
     const page = await browser.newPage({ viewport });
     await page.goto(toUrl(html), { waitUntil: "networkidle" });
+    const screenshot = outDir ? path.join(outDir, `${viewport.width}x${viewport.height}.png`) : null;
+    if (screenshot) await page.screenshot({ path: screenshot, fullPage: false });
     const result = await page.evaluate(() => {
       const root = document.documentElement;
       const body = document.body;
@@ -75,6 +79,28 @@ async function main() {
           overflow: style.overflow
         };
       });
+      const elements = Array.from(document.querySelectorAll("[data-i2h-id]")).map((el) => {
+        const rect = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        const visible =
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          Number(style.opacity || 1) !== 0 &&
+          rect.width > 0 &&
+          rect.height > 0;
+        const clippedX = visible && (rect.left < -1 || rect.right > viewportWidth + 1);
+        const clippedY = visible && rect.bottom < -1;
+        return {
+          id: el.getAttribute("data-i2h-id"),
+          visible,
+          x: Number(rect.x.toFixed(2)),
+          y: Number(rect.y.toFixed(2)),
+          width: Number(rect.width.toFixed(2)),
+          height: Number(rect.height.toFixed(2)),
+          clippedX,
+          clippedY
+        };
+      });
       return {
         bodyTextLength: body?.innerText?.trim().length ?? 0,
         scrollWidth: root.scrollWidth,
@@ -83,14 +109,17 @@ async function main() {
         clientHeight: viewportHeight,
         hasHorizontalOverflow: root.scrollWidth > viewportWidth + 1,
         hasVerticalOverflow: root.scrollHeight > viewportHeight + 1,
-        fixedLike
+        fixedLike,
+        elements,
+        clippedElements: elements.filter((item) => item.clippedX || item.clippedY)
       };
     });
     await page.close();
     results.push({
       viewport,
+      screenshot,
       ...result,
-      pass: !result.hasHorizontalOverflow && result.bodyTextLength > 0
+      pass: !result.hasHorizontalOverflow && result.clippedElements.length === 0 && result.bodyTextLength > 0
     });
   }
   await browser.close();
@@ -111,4 +140,3 @@ main().catch((error) => {
   console.error(error.message);
   process.exit(1);
 });
-

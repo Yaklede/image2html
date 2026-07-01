@@ -13,9 +13,11 @@ Use this skill to turn a provided image into faithful, code-native HTML. The goa
 
 - Source image path or attached image.
 - Desired output format: default to one self-contained HTML file unless the user requests React or another stack.
+- For multiple screenshots that represent one product/site, treat them as one cohesive site with shared layout, routing, state, and components, not as unrelated standalone pages.
 - Target viewport. If omitted, use the source image dimensions.
 - Fidelity target. Default to `0.90`.
 - `contentBounds` when the image includes browser chrome, OS chrome, whitespace, or surrounding presentation that should not be recreated.
+- `renderViewport` when the actual browser viewport differs from the source image pixel dimensions.
 
 If the image is low resolution, cropped, rotated, text-heavy, or contains unreadable text, record the risk before implementation and continue with best effort.
 
@@ -26,15 +28,18 @@ If the image is low resolution, cropped, rotated, text-heavy, or contains unread
    - canvas and viewport
    - excluded regions and content bounds
    - layout regions and hierarchy
+   - render viewport and responsive viewport set
    - text inventory
    - typography
    - colors
    - spacing
    - components
+   - nested components and parent-child containment
    - icon sizes and positions
    - shadow/border expectations
    - asset slots for image-like regions
    - uncertainty log
+   - for multi-image sites: route map, shared components, per-page deltas, common footer/header, interactive states, and expected user flows
 3. Read `references/implementation-rules.md` before creating HTML/CSS.
 4. Implement visible UI as semantic, code-native HTML and CSS.
 5. Add `data-i2h-id` to every major region, component, and icon listed in the analysis spec.
@@ -48,12 +53,20 @@ npm run harness -- --reference path/to/reference.png --html path/to/output.html 
 
 Use `--crop x,y,width,height` when no spec exists but the screenshot includes non-content chrome.
 
+For multiple images that form one site, create a site manifest and run:
+
+```bash
+npm run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
+```
+
+The site manifest must map each reference image to a route or state in the same HTML/app, declare shared `renderViewport` and crop rules, list responsive routes, and include interaction checks for menus, forms, filters, accordions, modals, or other stateful UI implied by the images.
+
 8. Read `references/fidelity-rubric.md` when interpreting scores or deciding whether the implementation is ready.
 9. Use `references/report-format.md` for the final report.
 
 ## Harness Contract
 
-The harness is a quality gate, not the only judge. It crops the reference to content bounds when provided, renders the HTML at the reference content viewport, captures a screenshot, masks declared asset slots, computes global and region diffs, runs layout bbox inspection, edge/shadow diagnostics, responsive sanity, and accessibility checks, then writes JSON plus Markdown reports.
+The harness is a quality gate, not the only judge. It crops the reference to content bounds when provided, optionally normalizes it to `renderViewport`, renders the HTML at the actual browser viewport, captures a screenshot, masks declared asset slots, computes global and region diffs, runs layout bbox and nested containment inspection, writes responsive screenshots plus sanity checks, runs edge/shadow diagnostics and accessibility checks, then writes JSON plus Markdown reports.
 
 Treat these as hard failures:
 
@@ -62,8 +75,12 @@ Treat these as hard failures:
 - elements overlap, clip, or overflow
 - the page is blank or not rendered at the requested viewport
 - a web page is implemented as a fixed-size static canvas unless explicitly requested
+- a web page is fitted to the source image dimensions instead of the intended `renderViewport`
+- multiple images from one site are delivered as disconnected static pages with no shared navigation, state, or reusable components
+- implied site interactions such as navigation, forms, filters, accordions, modals, pricing CTAs, or mobile menus are inert
 - browser/OS chrome is recreated when it should be excluded from the delivered page
 - `data-i2h-id` elements are missing or outside bbox tolerance
+- nested child components escape or materially misalign inside their parent components
 - icon size or position differs materially from the analysis spec
 - image-like regions are approximated with low-quality CSS/SVG instead of being represented as fillable asset slots
 - primary controls are non-semantic when semantic HTML is available
@@ -78,6 +95,7 @@ Treat these as hard failures:
 - `scripts/inspect-layout.mjs`: compare `data-i2h-id` DOM boxes against the analysis spec.
 - `scripts/responsive-check.mjs`: check desktop/mobile overflow and fixed-canvas failures.
 - `scripts/run-harness.mjs`: run the full verification pipeline and produce reports.
+- `scripts/run-site-harness.mjs`: run multi-reference site verification across routes, responsive views, and interaction flows.
 
 ## Output Standard
 
@@ -89,6 +107,8 @@ Always report:
 - harness score and pass/fail result when run
 - content crop used, if any
 - layout bbox, region diff, edge/shadow, responsive, and accessibility results
+- render viewport used, plus whether the reference was resized to it
 - asset slots left empty, masked comparison status, and the expected files/inputs needed to fill them
 - material mismatches fixed or remaining
 - manual checks that automated scoring could not prove, especially text correctness and typography nuance
+- for multi-image sites, route-level scores, responsive screenshots, interaction pass/fail, and any intentional dynamic-state deviations from static screenshots

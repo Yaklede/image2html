@@ -1,0 +1,1058 @@
+{
+  "manifest": {
+    "html": "tests/brand-site/index.html",
+    "renderViewport": {
+      "width": 1440,
+      "height": 1080,
+      "reason": "cropped reference page content is 1440x1080; outer generation border is excluded"
+    },
+    "contentBounds": {
+      "x": 4,
+      "y": 3,
+      "width": 1440,
+      "height": 1080,
+      "reason": "exclude the thin generated export border around each reference image"
+    },
+    "referenceTarget": "renderViewport",
+    "settleMs": 350,
+    "threshold": 0.1,
+    "minSimilarity": 0.9,
+    "viewports": [
+      {
+        "width": 1440,
+        "height": 1080
+      },
+      {
+        "width": 1024,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "responsiveRoutes": [
+      "#/",
+      "#/portfolio",
+      "#/contact",
+      "#/pricing"
+    ],
+    "pages": [
+      {
+        "id": "home",
+        "route": "#/",
+        "reference": "reference/home.png",
+        "expectedText": [
+          "We create digital",
+          "Strategy",
+          "Design",
+          "Development"
+        ]
+      },
+      {
+        "id": "about",
+        "route": "#/about",
+        "reference": "reference/about.png",
+        "expectedText": [
+          "About Us",
+          "Our Values",
+          "10+",
+          "250+",
+          "150+",
+          "25+"
+        ]
+      },
+      {
+        "id": "services",
+        "route": "#/services",
+        "reference": "reference/services.png",
+        "expectedText": [
+          "Our Services",
+          "Product Strategy",
+          "UI/UX Design",
+          "Maintenance"
+        ]
+      },
+      {
+        "id": "portfolio",
+        "route": "#/portfolio",
+        "reference": "reference/portfolio.png",
+        "expectedText": [
+          "Our Work",
+          "Metrics Dashboard",
+          "Nexora Mobile App",
+          "View All Projects"
+        ]
+      },
+      {
+        "id": "blog",
+        "route": "#/blog",
+        "reference": "reference/blog.png",
+        "expectedText": [
+          "Our Blog",
+          "The Future of Digital Products",
+          "Measuring What Matters"
+        ]
+      },
+      {
+        "id": "article",
+        "route": "#/article/designing-better-user-experiences",
+        "reference": "reference/article.png",
+        "expectedText": [
+          "Designing Better",
+          "Start with Empathy",
+          "In Conclusion"
+        ]
+      },
+      {
+        "id": "contact",
+        "route": "#/contact",
+        "reference": "reference/contact.png",
+        "expectedText": [
+          "Let",
+          "work together",
+          "Get in touch",
+          "Send Message"
+        ]
+      },
+      {
+        "id": "pricing",
+        "route": "#/pricing",
+        "reference": "reference/pricing.png",
+        "expectedText": [
+          "Pricing Plans",
+          "Basic",
+          "Pro",
+          "Enterprise"
+        ]
+      },
+      {
+        "id": "faq",
+        "route": "#/faq",
+        "reference": "reference/faq.png",
+        "expectedText": [
+          "Frequently Asked Questions",
+          "What services do you offer?",
+          "Do you work with startups?"
+        ]
+      },
+      {
+        "id": "not-found",
+        "route": "#/404",
+        "reference": "reference/404.png",
+        "expectedText": [
+          "404",
+          "Page Not Found",
+          "Go Home"
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "id": "nav-to-about",
+        "route": "#/",
+        "steps": [
+          {
+            "action": "click",
+            "selector": "[data-nav='about']"
+          },
+          {
+            "action": "expectRoute",
+            "route": "#/about"
+          },
+          {
+            "action": "expectText",
+            "text": "About Us"
+          }
+        ]
+      },
+      {
+        "id": "portfolio-filter-and-modal",
+        "route": "#/portfolio",
+        "steps": [
+          {
+            "action": "click",
+            "selector": "[data-filter='mobile']"
+          },
+          {
+            "action": "click",
+            "selector": "[data-project-id='nexora']"
+          },
+          {
+            "action": "expectText",
+            "text": "Nexora Mobile App"
+          },
+          {
+            "action": "click",
+            "selector": ".modal-panel [data-close-modal]"
+          }
+        ]
+      },
+      {
+        "id": "faq-accordion",
+        "route": "#/faq",
+        "steps": [
+          {
+            "action": "click",
+            "selector": ".faq-item:first-child .faq-trigger"
+          },
+          {
+            "action": "expectText",
+            "text": "We offer product strategy"
+          }
+        ]
+      },
+      {
+        "id": "pricing-plan-modal",
+        "route": "#/pricing",
+        "steps": [
+          {
+            "action": "click",
+            "selector": "[data-plan='Pro']"
+          },
+          {
+            "action": "expectText",
+            "text": "Pro plan"
+          },
+          {
+            "action": "click",
+            "selector": ".modal-panel [data-close-modal]"
+          }
+        ]
+      },
+      {
+        "id": "contact-form-success",
+        "route": "#/contact",
+        "steps": [
+          {
+            "action": "fill",
+            "selector": "#name",
+            "value": "Jimin"
+          },
+          {
+            "action": "fill",
+            "selector": "#email",
+            "value": "hello@example.com"
+          },
+          {
+            "action": "fill",
+            "selector": "#message",
+            "value": "Let's build this."
+          },
+          {
+            "action": "click",
+            "selector": "[data-contact-form] button[type='submit']"
+          },
+          {
+            "action": "expectText",
+            "text": "Message sent"
+          },
+          {
+            "action": "click",
+            "selector": ".modal-panel [data-close-modal]"
+          }
+        ]
+      },
+      {
+        "id": "not-found-go-home",
+        "route": "#/404",
+        "steps": [
+          {
+            "action": "click",
+            "selector": ".not-found .button"
+          },
+          {
+            "action": "expectRoute",
+            "route": "#/"
+          },
+          {
+            "action": "expectText",
+            "text": "We create digital"
+          }
+        ]
+      }
+    ]
+  },
+  "score": {
+    "averageSimilarity": 0.9315,
+    "target": 0.9,
+    "pagePassRate": 1,
+    "responsivePassRate": 1,
+    "interactionPassRate": 1,
+    "consoleWarningsErrors": 0
+  },
+  "pass": true,
+  "pages": [
+    {
+      "id": "home",
+      "route": "#/",
+      "reference": "tests/brand-site/report/pages/home/reference.png",
+      "screenshot": "tests/brand-site/report/pages/home/rendered.png",
+      "diff": "tests/brand-site/report/pages/home/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/home/reference.png",
+        "rendered": "tests/brand-site/report/pages/home/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/home/rendered.png",
+        "diff": "tests/brand-site/report/pages/home/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 123398,
+        "totalPixels": 1555200,
+        "diffRatio": 0.079345,
+        "similarity": 0.920655
+      },
+      "health": {
+        "title": "Brand - Home",
+        "route": "#/",
+        "bodyTextLength": 992,
+        "scrollWidth": 1440,
+        "scrollHeight": 1102,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "about",
+      "route": "#/about",
+      "reference": "tests/brand-site/report/pages/about/reference.png",
+      "screenshot": "tests/brand-site/report/pages/about/rendered.png",
+      "diff": "tests/brand-site/report/pages/about/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/about/reference.png",
+        "rendered": "tests/brand-site/report/pages/about/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/about/rendered.png",
+        "diff": "tests/brand-site/report/pages/about/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 132363,
+        "totalPixels": 1555200,
+        "diffRatio": 0.08511,
+        "similarity": 0.91489
+      },
+      "health": {
+        "title": "Brand - About",
+        "route": "#/about",
+        "bodyTextLength": 1517,
+        "scrollWidth": 1440,
+        "scrollHeight": 1094,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "About",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "services",
+      "route": "#/services",
+      "reference": "tests/brand-site/report/pages/services/reference.png",
+      "screenshot": "tests/brand-site/report/pages/services/rendered.png",
+      "diff": "tests/brand-site/report/pages/services/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/services/reference.png",
+        "rendered": "tests/brand-site/report/pages/services/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/services/rendered.png",
+        "diff": "tests/brand-site/report/pages/services/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 118380,
+        "totalPixels": 1555200,
+        "diffRatio": 0.076119,
+        "similarity": 0.923881
+      },
+      "health": {
+        "title": "Brand - Services",
+        "route": "#/services",
+        "bodyTextLength": 1278,
+        "scrollWidth": 1440,
+        "scrollHeight": 1147,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Services",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "portfolio",
+      "route": "#/portfolio",
+      "reference": "tests/brand-site/report/pages/portfolio/reference.png",
+      "screenshot": "tests/brand-site/report/pages/portfolio/rendered.png",
+      "diff": "tests/brand-site/report/pages/portfolio/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/portfolio/reference.png",
+        "rendered": "tests/brand-site/report/pages/portfolio/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/portfolio/rendered.png",
+        "diff": "tests/brand-site/report/pages/portfolio/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 101830,
+        "totalPixels": 1555200,
+        "diffRatio": 0.065477,
+        "similarity": 0.934523
+      },
+      "health": {
+        "title": "Brand - Portfolio",
+        "route": "#/portfolio",
+        "bodyTextLength": 1110,
+        "scrollWidth": 1440,
+        "scrollHeight": 1098,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Portfolio",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "blog",
+      "route": "#/blog",
+      "reference": "tests/brand-site/report/pages/blog/reference.png",
+      "screenshot": "tests/brand-site/report/pages/blog/rendered.png",
+      "diff": "tests/brand-site/report/pages/blog/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/blog/reference.png",
+        "rendered": "tests/brand-site/report/pages/blog/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/blog/rendered.png",
+        "diff": "tests/brand-site/report/pages/blog/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 100591,
+        "totalPixels": 1555200,
+        "diffRatio": 0.06468,
+        "similarity": 0.93532
+      },
+      "health": {
+        "title": "Brand - Blog",
+        "route": "#/blog",
+        "bodyTextLength": 1170,
+        "scrollWidth": 1440,
+        "scrollHeight": 1167,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Blog",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "article",
+      "route": "#/article/designing-better-user-experiences",
+      "reference": "tests/brand-site/report/pages/article/reference.png",
+      "screenshot": "tests/brand-site/report/pages/article/rendered.png",
+      "diff": "tests/brand-site/report/pages/article/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/article/reference.png",
+        "rendered": "tests/brand-site/report/pages/article/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/article/rendered.png",
+        "diff": "tests/brand-site/report/pages/article/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 118115,
+        "totalPixels": 1555200,
+        "diffRatio": 0.075948,
+        "similarity": 0.924052
+      },
+      "health": {
+        "title": "Brand - Article",
+        "route": "#/article/designing-better-user-experiences",
+        "bodyTextLength": 1860,
+        "scrollWidth": 1440,
+        "scrollHeight": 1314,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Blog",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "contact",
+      "route": "#/contact",
+      "reference": "tests/brand-site/report/pages/contact/reference.png",
+      "screenshot": "tests/brand-site/report/pages/contact/rendered.png",
+      "diff": "tests/brand-site/report/pages/contact/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/contact/reference.png",
+        "rendered": "tests/brand-site/report/pages/contact/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/contact/rendered.png",
+        "diff": "tests/brand-site/report/pages/contact/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 107565,
+        "totalPixels": 1555200,
+        "diffRatio": 0.069165,
+        "similarity": 0.930835
+      },
+      "health": {
+        "title": "Brand - Contact",
+        "route": "#/contact",
+        "bodyTextLength": 752,
+        "scrollWidth": 1440,
+        "scrollHeight": 1080,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": false,
+        "activeNav": "Contact",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "pricing",
+      "route": "#/pricing",
+      "reference": "tests/brand-site/report/pages/pricing/reference.png",
+      "screenshot": "tests/brand-site/report/pages/pricing/rendered.png",
+      "diff": "tests/brand-site/report/pages/pricing/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/pricing/reference.png",
+        "rendered": "tests/brand-site/report/pages/pricing/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/pricing/rendered.png",
+        "diff": "tests/brand-site/report/pages/pricing/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 124091,
+        "totalPixels": 1555200,
+        "diffRatio": 0.079791,
+        "similarity": 0.920209
+      },
+      "health": {
+        "title": "Brand - Pricing",
+        "route": "#/pricing",
+        "bodyTextLength": 1152,
+        "scrollWidth": 1440,
+        "scrollHeight": 1160,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "faq",
+      "route": "#/faq",
+      "reference": "tests/brand-site/report/pages/faq/reference.png",
+      "screenshot": "tests/brand-site/report/pages/faq/rendered.png",
+      "diff": "tests/brand-site/report/pages/faq/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/faq/reference.png",
+        "rendered": "tests/brand-site/report/pages/faq/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/faq/rendered.png",
+        "diff": "tests/brand-site/report/pages/faq/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 80500,
+        "totalPixels": 1555200,
+        "diffRatio": 0.051762,
+        "similarity": 0.948238
+      },
+      "health": {
+        "title": "Brand - Faq",
+        "route": "#/faq",
+        "bodyTextLength": 694,
+        "scrollWidth": 1440,
+        "scrollHeight": 1080,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": false,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "id": "not-found",
+      "route": "#/404",
+      "reference": "tests/brand-site/report/pages/not-found/reference.png",
+      "screenshot": "tests/brand-site/report/pages/not-found/rendered.png",
+      "diff": "tests/brand-site/report/pages/not-found/diff.png",
+      "compare": {
+        "reference": "tests/brand-site/report/pages/not-found/reference.png",
+        "rendered": "tests/brand-site/report/pages/not-found/rendered.png",
+        "renderedPathForCompare": "tests/brand-site/report/pages/not-found/rendered.png",
+        "diff": "tests/brand-site/report/pages/not-found/diff.png",
+        "width": 1440,
+        "height": 1080,
+        "dimensionsMatch": true,
+        "threshold": 0.1,
+        "diffPixels": 58661,
+        "totalPixels": 1555200,
+        "diffRatio": 0.037719,
+        "similarity": 0.962281
+      },
+      "health": {
+        "title": "404 - Brand",
+        "route": "#/404",
+        "bodyTextLength": 546,
+        "scrollWidth": 1440,
+        "scrollHeight": 1080,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": false,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    }
+  ],
+  "responsive": [
+    {
+      "route": "#/",
+      "viewport": {
+        "width": 1440,
+        "height": 1080
+      },
+      "screenshot": "tests/brand-site/report/responsive/home-1440x1080.png",
+      "health": {
+        "title": "Brand - Home",
+        "route": "#/",
+        "bodyTextLength": 992,
+        "scrollWidth": 1440,
+        "scrollHeight": 1102,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/portfolio",
+      "viewport": {
+        "width": 1440,
+        "height": 1080
+      },
+      "screenshot": "tests/brand-site/report/responsive/portfolio-1440x1080.png",
+      "health": {
+        "title": "Brand - Portfolio",
+        "route": "#/portfolio",
+        "bodyTextLength": 1110,
+        "scrollWidth": 1440,
+        "scrollHeight": 1098,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Portfolio",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/contact",
+      "viewport": {
+        "width": 1440,
+        "height": 1080
+      },
+      "screenshot": "tests/brand-site/report/responsive/contact-1440x1080.png",
+      "health": {
+        "title": "Brand - Contact",
+        "route": "#/contact",
+        "bodyTextLength": 752,
+        "scrollWidth": 1440,
+        "scrollHeight": 1080,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": false,
+        "activeNav": "Contact",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/pricing",
+      "viewport": {
+        "width": 1440,
+        "height": 1080
+      },
+      "screenshot": "tests/brand-site/report/responsive/pricing-1440x1080.png",
+      "health": {
+        "title": "Brand - Pricing",
+        "route": "#/pricing",
+        "bodyTextLength": 1152,
+        "scrollWidth": 1440,
+        "scrollHeight": 1160,
+        "clientWidth": 1440,
+        "clientHeight": 1080,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "screenshot": "tests/brand-site/report/responsive/home-1024x900.png",
+      "health": {
+        "title": "Brand - Home",
+        "route": "#/",
+        "bodyTextLength": 992,
+        "scrollWidth": 1024,
+        "scrollHeight": 1102,
+        "clientWidth": 1024,
+        "clientHeight": 900,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/portfolio",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "screenshot": "tests/brand-site/report/responsive/portfolio-1024x900.png",
+      "health": {
+        "title": "Brand - Portfolio",
+        "route": "#/portfolio",
+        "bodyTextLength": 1110,
+        "scrollWidth": 1024,
+        "scrollHeight": 1144,
+        "clientWidth": 1024,
+        "clientHeight": 900,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Portfolio",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/contact",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "screenshot": "tests/brand-site/report/responsive/contact-1024x900.png",
+      "health": {
+        "title": "Brand - Contact",
+        "route": "#/contact",
+        "bodyTextLength": 752,
+        "scrollWidth": 1024,
+        "scrollHeight": 1074,
+        "clientWidth": 1024,
+        "clientHeight": 900,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Contact",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/pricing",
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "screenshot": "tests/brand-site/report/responsive/pricing-1024x900.png",
+      "health": {
+        "title": "Brand - Pricing",
+        "route": "#/pricing",
+        "bodyTextLength": 1152,
+        "scrollWidth": 1024,
+        "scrollHeight": 1160,
+        "clientWidth": 1024,
+        "clientHeight": 900,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "tests/brand-site/report/responsive/home-390x844.png",
+      "health": {
+        "title": "Brand - Home",
+        "route": "#/",
+        "bodyTextLength": 937,
+        "scrollWidth": 390,
+        "scrollHeight": 2561,
+        "clientWidth": 390,
+        "clientHeight": 844,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/portfolio",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "tests/brand-site/report/responsive/portfolio-390x844.png",
+      "health": {
+        "title": "Brand - Portfolio",
+        "route": "#/portfolio",
+        "bodyTextLength": 1055,
+        "scrollWidth": 390,
+        "scrollHeight": 2738,
+        "clientWidth": 390,
+        "clientHeight": 844,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Portfolio",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/contact",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "tests/brand-site/report/responsive/contact-390x844.png",
+      "health": {
+        "title": "Brand - Contact",
+        "route": "#/contact",
+        "bodyTextLength": 697,
+        "scrollWidth": 390,
+        "scrollHeight": 2406,
+        "clientWidth": 390,
+        "clientHeight": 844,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Contact",
+        "missingTexts": []
+      },
+      "pass": true
+    },
+    {
+      "route": "#/pricing",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "tests/brand-site/report/responsive/pricing-390x844.png",
+      "health": {
+        "title": "Brand - Pricing",
+        "route": "#/pricing",
+        "bodyTextLength": 1097,
+        "scrollWidth": 390,
+        "scrollHeight": 3122,
+        "clientWidth": 390,
+        "clientHeight": 844,
+        "hasHorizontalOverflow": false,
+        "hasVerticalOverflow": true,
+        "activeNav": "Home",
+        "missingTexts": []
+      },
+      "pass": true
+    }
+  ],
+  "interactions": [
+    {
+      "id": "nav-to-about",
+      "route": "#/",
+      "steps": [
+        {
+          "action": "click",
+          "selector": "[data-nav='about']",
+          "pass": true
+        },
+        {
+          "action": "expectRoute",
+          "route": "#/about",
+          "pass": true,
+          "actual": "tests/brand-site/index.html#/about"
+        },
+        {
+          "action": "expectText",
+          "text": "About Us",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "portfolio-filter-and-modal",
+      "route": "#/portfolio",
+      "steps": [
+        {
+          "action": "click",
+          "selector": "[data-filter='mobile']",
+          "pass": true
+        },
+        {
+          "action": "click",
+          "selector": "[data-project-id='nexora']",
+          "pass": true
+        },
+        {
+          "action": "expectText",
+          "text": "Nexora Mobile App",
+          "pass": true
+        },
+        {
+          "action": "click",
+          "selector": ".modal-panel [data-close-modal]",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "faq-accordion",
+      "route": "#/faq",
+      "steps": [
+        {
+          "action": "click",
+          "selector": ".faq-item:first-child .faq-trigger",
+          "pass": true
+        },
+        {
+          "action": "expectText",
+          "text": "We offer product strategy",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "pricing-plan-modal",
+      "route": "#/pricing",
+      "steps": [
+        {
+          "action": "click",
+          "selector": "[data-plan='Pro']",
+          "pass": true
+        },
+        {
+          "action": "expectText",
+          "text": "Pro plan",
+          "pass": true
+        },
+        {
+          "action": "click",
+          "selector": ".modal-panel [data-close-modal]",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "contact-form-success",
+      "route": "#/contact",
+      "steps": [
+        {
+          "action": "fill",
+          "selector": "#name",
+          "pass": true
+        },
+        {
+          "action": "fill",
+          "selector": "#email",
+          "pass": true
+        },
+        {
+          "action": "fill",
+          "selector": "#message",
+          "pass": true
+        },
+        {
+          "action": "click",
+          "selector": "[data-contact-form] button[type='submit']",
+          "pass": true
+        },
+        {
+          "action": "expectText",
+          "text": "Message sent",
+          "pass": true
+        },
+        {
+          "action": "click",
+          "selector": ".modal-panel [data-close-modal]",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "not-found-go-home",
+      "route": "#/404",
+      "steps": [
+        {
+          "action": "click",
+          "selector": ".not-found .button",
+          "pass": true
+        },
+        {
+          "action": "expectRoute",
+          "route": "#/",
+          "pass": true,
+          "actual": "tests/brand-site/index.html#/"
+        },
+        {
+          "action": "expectText",
+          "text": "We create digital",
+          "pass": true
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "outputs": {
+    "reportJson": "tests/brand-site/report/report.json",
+    "reportMd": "tests/brand-site/report/report.md"
+  }
+}

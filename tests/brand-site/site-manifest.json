@@ -1,0 +1,146 @@
+{
+  "html": "index.html",
+  "renderViewport": {
+    "width": 1440,
+    "height": 1080,
+    "reason": "cropped reference page content is 1440x1080; outer generation border is excluded"
+  },
+  "contentBounds": {
+    "x": 4,
+    "y": 3,
+    "width": 1440,
+    "height": 1080,
+    "reason": "exclude the thin generated export border around each reference image"
+  },
+  "referenceTarget": "renderViewport",
+  "settleMs": 350,
+  "threshold": 0.1,
+  "minSimilarity": 0.9,
+  "viewports": [
+    { "width": 1440, "height": 1080 },
+    { "width": 1024, "height": 900 },
+    { "width": 390, "height": 844 }
+  ],
+  "responsiveRoutes": ["#/", "#/portfolio", "#/contact", "#/pricing"],
+  "pages": [
+    {
+      "id": "home",
+      "route": "#/",
+      "reference": "reference/home.png",
+      "expectedText": ["We create digital", "Strategy", "Design", "Development"]
+    },
+    {
+      "id": "about",
+      "route": "#/about",
+      "reference": "reference/about.png",
+      "expectedText": ["About Us", "Our Values", "10+", "250+", "150+", "25+"]
+    },
+    {
+      "id": "services",
+      "route": "#/services",
+      "reference": "reference/services.png",
+      "expectedText": ["Our Services", "Product Strategy", "UI/UX Design", "Maintenance"]
+    },
+    {
+      "id": "portfolio",
+      "route": "#/portfolio",
+      "reference": "reference/portfolio.png",
+      "expectedText": ["Our Work", "Metrics Dashboard", "Nexora Mobile App", "View All Projects"]
+    },
+    {
+      "id": "blog",
+      "route": "#/blog",
+      "reference": "reference/blog.png",
+      "expectedText": ["Our Blog", "The Future of Digital Products", "Measuring What Matters"]
+    },
+    {
+      "id": "article",
+      "route": "#/article/designing-better-user-experiences",
+      "reference": "reference/article.png",
+      "expectedText": ["Designing Better", "Start with Empathy", "In Conclusion"]
+    },
+    {
+      "id": "contact",
+      "route": "#/contact",
+      "reference": "reference/contact.png",
+      "expectedText": ["Let", "work together", "Get in touch", "Send Message"]
+    },
+    {
+      "id": "pricing",
+      "route": "#/pricing",
+      "reference": "reference/pricing.png",
+      "expectedText": ["Pricing Plans", "Basic", "Pro", "Enterprise"]
+    },
+    {
+      "id": "faq",
+      "route": "#/faq",
+      "reference": "reference/faq.png",
+      "expectedText": ["Frequently Asked Questions", "What services do you offer?", "Do you work with startups?"]
+    },
+    {
+      "id": "not-found",
+      "route": "#/404",
+      "reference": "reference/404.png",
+      "expectedText": ["404", "Page Not Found", "Go Home"]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "nav-to-about",
+      "route": "#/",
+      "steps": [
+        { "action": "click", "selector": "[data-nav='about']" },
+        { "action": "expectRoute", "route": "#/about" },
+        { "action": "expectText", "text": "About Us" }
+      ]
+    },
+    {
+      "id": "portfolio-filter-and-modal",
+      "route": "#/portfolio",
+      "steps": [
+        { "action": "click", "selector": "[data-filter='mobile']" },
+        { "action": "click", "selector": "[data-project-id='nexora']" },
+        { "action": "expectText", "text": "Nexora Mobile App" },
+        { "action": "click", "selector": ".modal-panel [data-close-modal]" }
+      ]
+    },
+    {
+      "id": "faq-accordion",
+      "route": "#/faq",
+      "steps": [
+        { "action": "click", "selector": ".faq-item:first-child .faq-trigger" },
+        { "action": "expectText", "text": "We offer product strategy" }
+      ]
+    },
+    {
+      "id": "pricing-plan-modal",
+      "route": "#/pricing",
+      "steps": [
+        { "action": "click", "selector": "[data-plan='Pro']" },
+        { "action": "expectText", "text": "Pro plan" },
+        { "action": "click", "selector": ".modal-panel [data-close-modal]" }
+      ]
+    },
+    {
+      "id": "contact-form-success",
+      "route": "#/contact",
+      "steps": [
+        { "action": "fill", "selector": "#name", "value": "Jimin" },
+        { "action": "fill", "selector": "#email", "value": "hello@example.com" },
+        { "action": "fill", "selector": "#message", "value": "Let's build this." },
+        { "action": "click", "selector": "[data-contact-form] button[type='submit']" },
+        { "action": "expectText", "text": "Message sent" },
+        { "action": "click", "selector": ".modal-panel [data-close-modal]" }
+      ]
+    },
+    {
+      "id": "not-found-go-home",
+      "route": "#/404",
+      "steps": [
+        { "action": "click", "selector": ".not-found .button" },
+        { "action": "expectRoute", "route": "#/" },
+        { "action": "expectText", "text": "We create digital" }
+      ]
+    }
+  ]
+}
