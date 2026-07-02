@@ -29,8 +29,40 @@ files:
     to: .codex/skills/image2html/package.json
   - from: package-lock.json
     to: .codex/skills/image2html/package-lock.json
-  - from: node_modules
-    to: .codex/skills/image2html/node_modules
+  - from: node_modules/@axe-core
+    to: .codex/skills/image2html/node_modules/@axe-core
+  - from: node_modules/@emnapi
+    to: .codex/skills/image2html/node_modules/@emnapi
+  - from: node_modules/@img
+    to: .codex/skills/image2html/node_modules/@img
+  - from: node_modules/axe-core
+    to: .codex/skills/image2html/node_modules/axe-core
+  - from: node_modules/color
+    to: .codex/skills/image2html/node_modules/color
+  - from: node_modules/color-convert
+    to: .codex/skills/image2html/node_modules/color-convert
+  - from: node_modules/color-name
+    to: .codex/skills/image2html/node_modules/color-name
+  - from: node_modules/color-string
+    to: .codex/skills/image2html/node_modules/color-string
+  - from: node_modules/detect-libc
+    to: .codex/skills/image2html/node_modules/detect-libc
+  - from: node_modules/is-arrayish
+    to: .codex/skills/image2html/node_modules/is-arrayish
+  - from: node_modules/pixelmatch
+    to: .codex/skills/image2html/node_modules/pixelmatch
+  - from: node_modules/playwright
+    to: .codex/skills/image2html/node_modules/playwright
+  - from: node_modules/playwright-core
+    to: .codex/skills/image2html/node_modules/playwright-core
+  - from: node_modules/pngjs
+    to: .codex/skills/image2html/node_modules/pngjs
+  - from: node_modules/semver
+    to: .codex/skills/image2html/node_modules/semver
+  - from: node_modules/sharp
+    to: .codex/skills/image2html/node_modules/sharp
+  - from: node_modules/simple-swizzle
+    to: .codex/skills/image2html/node_modules/simple-swizzle
 
 doctor:
   - id: codex-skill
