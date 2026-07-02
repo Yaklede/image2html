@@ -45,10 +45,17 @@ If the image is low resolution, cropped, rotated, text-heavy, or contains unread
 5. Add `data-i2h-id` to every major region, component, and icon listed in the analysis spec.
 6. Use `assets/templates/single-file.html` as the starting template when creating a standalone HTML deliverable.
 7. Run the harness when both a reference image and output HTML are available.
-   If this skill was installed through OpenDock and `.codex/skills/image2html/node_modules` is missing, install dependencies explicitly before the first harness run:
+   When this skill is installed through OpenDock, use the project-local npm tool commands declared by the dock:
 
 ```bash
-npm --prefix .codex/skills/image2html install
+image2html-harness --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
+```
+
+   When using the npm package directly from another project, install it as a dev dependency or run through `npx`:
+
+```bash
+npm install -D @yaklede/image2html
+npx image2html-harness --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
 ```
 
    When working from the skill repository itself, install dependencies in the repository root:
@@ -58,24 +65,18 @@ npm install
 npm run harness -- --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
 ```
 
-   When using an OpenDock-installed skill from a target project, run the harness through the installed skill package:
-
-```bash
-npm --prefix .codex/skills/image2html run harness -- --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
-```
-
 Use `--crop x,y,width,height` when no spec exists but the screenshot includes non-content chrome.
 
 For multiple images that form one site, create a site manifest and run:
 
 ```bash
-npm run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
+image2html-site-harness --manifest path/to/site-manifest.json --out .image2html-site-report
 ```
 
-For an OpenDock-installed skill, use:
+When working from this repository, use:
 
 ```bash
-npm --prefix .codex/skills/image2html run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
+npm run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
 ```
 
 The site manifest must map each reference image to a route or state in the same HTML/app, declare shared `renderViewport` and crop rules, list responsive routes, and include interaction checks for menus, forms, filters, accordions, modals, or other stateful UI implied by the images.

@@ -9,12 +9,29 @@ tags:
   - visual-regression
   - playwright
 
-permissions: []
+permissions:
+  - image2html-harness --help
+  - image2html-site-harness --help
 
 requires:
   runtimes:
     node: ">=20.0.0"
     npm: ">=10.0.0"
+
+tools:
+  image2html:
+    manager: npm
+    package: "@yaklede/image2html"
+    version: "1.0.0"
+    commands:
+      - image2html-harness
+      - image2html-site-harness
+      - image2html-normalize
+      - image2html-render
+      - image2html-compare
+      - image2html-a11y
+      - image2html-inspect
+      - image2html-responsive
 
 files:
   - from: SKILL.md
@@ -25,10 +42,6 @@ files:
     to: .codex/skills/image2html/scripts
   - from: assets/templates
     to: .codex/skills/image2html/assets/templates
-  - from: package.json
-    to: .codex/skills/image2html/package.json
-  - from: package-lock.json
-    to: .codex/skills/image2html/package-lock.json
 
 doctor:
   - id: node-runtime
@@ -45,7 +58,7 @@ doctor:
     check: test -f .codex/skills/image2html/scripts/run-harness.mjs
   - id: site-harness-script
     check: test -f .codex/skills/image2html/scripts/run-site-harness.mjs
-  - id: harness-package
-    check: test -f .codex/skills/image2html/package.json
-  - id: harness-lockfile
-    check: test -f .codex/skills/image2html/package-lock.json
+  - id: image2html-harness-tool
+    run: image2html-harness --help
+  - id: image2html-site-harness-tool
+    run: image2html-site-harness --help

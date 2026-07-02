@@ -22,20 +22,95 @@ The goal is to guide an AI model through detailed image analysis, structured HTM
 - `scripts/`: Playwright-based render, screenshot comparison, accessibility, and full harness scripts.
 - `assets/templates/single-file.html`: standalone HTML starting template.
 
+## NPM Package / npm 패키지
+
+The harness is prepared to publish as `@yaklede/image2html`. Publish it as a public npm package, then reference the CLI commands from OpenDock `tools` instead of vendoring `node_modules` into the dock archive.
+
+하네스는 `@yaklede/image2html` npm 패키지로 publish하는 구조입니다. OpenDock archive 안에 `node_modules`를 포함하지 않고, publish 이후 OpenDock `tools`에서 npm CLI 패키지로 선언합니다.
+
+### Publisher Requirements / publish 전에 필요한 것
+
+- npm 계정: `@yaklede` scope에 publish 권한이 있어야 합니다. 권한이 없으면 publish 전에 package scope/name을 바꿔야 합니다.
+- 인증 정보: 로컬에서는 `npm login`, CI에서는 publish 권한이 있는 `NPM_TOKEN`이 필요합니다. 토큰은 절대 저장소에 커밋하지 않습니다.
+- 2FA OTP: npm 계정이 publish 2FA를 요구하면 1회용 OTP가 필요합니다.
+- 고유 버전: `package.json`의 `version`은 npm에 이미 올라간 적 없는 semver여야 합니다.
+- 공개 scoped package 승인: scoped package를 public으로 올리기 위해 `npm publish --access public`을 사용합니다.
+
+### Publish / 배포
+
+```bash
+npm whoami
+npm pack --dry-run
+npm publish --access public
+```
+
+If npm asks for 2FA:
+
+```bash
+npm publish --access public --otp 123456
+```
+
+For CI:
+
+```bash
+npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+npm publish --access public
+```
+
+### NPM Usage / npm 사용법
+
+Install the harness in a project:
+
+```bash
+npm install -D @yaklede/image2html
+```
+
+Run the single-image harness:
+
+```bash
+npx image2html-harness --reference path/to/reference.png --html path/to/output.html --spec path/to/analysis.json --out .image2html-report
+```
+
+Run the multi-image site harness:
+
+```bash
+npx image2html-site-harness --manifest path/to/site-manifest.json --out .image2html-site-report
+```
+
+Or call the installed binaries directly:
+
+```bash
+./node_modules/.bin/image2html-harness --reference path/to/reference.png --html path/to/output.html --out .image2html-report
+./node_modules/.bin/image2html-site-harness --manifest path/to/site-manifest.json --out .image2html-site-report
+```
+
 ## OpenDock Deploy / OpenDock 배포
 
-This repository is prepared as an OpenDock dock. The manifest installs the skill and harness under `.codex/skills/image2html/` in the target project. It runs npm in OpenDock's private dock workdir, then exports `node_modules` into the installed skill directory so the harness can run immediately after install.
+OpenDock installs the Codex skill files and references. Runtime dependencies must come from npm through `tools`; OpenDock tasks must not run package-install commands or archive vendored native binaries.
 
-이 저장소는 OpenDock dock으로 배포할 수 있도록 구성되어 있습니다. 설치 시 대상 프로젝트의 `.codex/skills/image2html/` 아래에 스킬과 하네스를 배치합니다. npm 설치는 OpenDock의 private dock workdir에서 실행한 뒤, 생성된 `node_modules`를 설치된 스킬 디렉터리로 export해서 install 직후 하네스를 실행할 수 있게 합니다.
+OpenDock는 Codex skill 파일과 reference 문서를 설치합니다. 런타임 dependency는 npm package를 `tools`로 선언해서 공급해야 하며, OpenDock task에서 `npm install`을 실행하거나 native binary가 포함된 `node_modules`를 archive에 넣지 않습니다.
+
+After the npm package is published, declare it as a project-local tool in `dock.yml`:
+
+```yaml
+tools:
+  image2html:
+    manager: npm
+    package: "@yaklede/image2html"
+    version: "1.0.0"
+    commands:
+      - image2html-harness
+      - image2html-site-harness
+```
 
 Deploy for review:
 
 ```bash
 opendock auth login
-opendock deploy yaklede/image2html@0.1.2 --file dock.yml
+opendock deploy yaklede/image2html@1.0.0 --platform macos --file dock.yml
 ```
 
-Installed files are checked with:
+Installed files and tool shims are checked with:
 
 ```bash
 opendock doctor yaklede/image2html
@@ -43,7 +118,7 @@ opendock doctor yaklede/image2html
 
 ## Harness Usage / 하네스 실행
 
-Install dependencies:
+For repository development, install dependencies locally:
 
 ```bash
 npm install
@@ -94,13 +169,13 @@ The site harness additionally validates:
 
 The sample below converts 10 website screenshots into one functional HTML site. The screens are connected as routes and states inside a single site, with shared layout, responsive behavior, modals, accordions, filters, form feedback, a mobile drawer, and 404 recovery.
 
-- Source images / 입력 이미지: `tests/brand-site/reference/`
-- Generated site / 변환 결과: `tests/brand-site/index.html`
-- Harness manifest / 검증 매니페스트: `tests/brand-site/site-manifest.json`
-- Verification report / 검증 리포트: `tests/brand-site/report/report.md`
+- Source images / 입력 이미지: [`tests/brand-site/reference/`](https://github.com/Yaklede/image2html/tree/main/tests/brand-site/reference)
+- Generated site / 변환 결과: [`tests/brand-site/index.html`](https://github.com/Yaklede/image2html/blob/main/tests/brand-site/index.html)
+- Harness manifest / 검증 매니페스트: [`tests/brand-site/site-manifest.json`](https://github.com/Yaklede/image2html/blob/main/tests/brand-site/site-manifest.json)
+- Verification report / 검증 리포트: [`tests/brand-site/report/report.md`](https://github.com/Yaklede/image2html/blob/main/tests/brand-site/report/report.md)
 - Result / 결과: average similarity `0.9315`, pages `10/10`, responsive checks `12/12`, interactions `6/6`
 
-Run the committed sample:
+Run the committed sample from a repository checkout:
 
 ```bash
 python3 -m http.server 5501 --bind 127.0.0.1
@@ -109,10 +184,10 @@ open http://127.0.0.1:5501/tests/brand-site/index.html#/
 
 | Reference Image / 입력 이미지 | Generated HTML Render / HTML 변환 결과 |
 | --- | --- |
-| <img src="tests/brand-site/reference/home.png" width="420" alt="Home page reference screenshot"> | <img src="tests/brand-site/report/pages/home/rendered.png" width="420" alt="Generated home page HTML render"> |
-| <img src="tests/brand-site/reference/pricing.png" width="420" alt="Pricing page reference screenshot"> | <img src="tests/brand-site/report/pages/pricing/rendered.png" width="420" alt="Generated pricing page HTML render"> |
-| <img src="tests/brand-site/reference/contact.png" width="420" alt="Contact page reference screenshot"> | <img src="tests/brand-site/report/pages/contact/rendered.png" width="420" alt="Generated contact page HTML render"> |
-| <img src="tests/brand-site/reference/portfolio.png" width="420" alt="Portfolio page reference screenshot"> | <img src="tests/brand-site/report/pages/portfolio/rendered.png" width="420" alt="Generated portfolio page HTML render"> |
+| <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/reference/home.png" width="420" alt="Home page reference screenshot"> | <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/report/pages/home/rendered.png" width="420" alt="Generated home page HTML render"> |
+| <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/reference/pricing.png" width="420" alt="Pricing page reference screenshot"> | <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/report/pages/pricing/rendered.png" width="420" alt="Generated pricing page HTML render"> |
+| <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/reference/contact.png" width="420" alt="Contact page reference screenshot"> | <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/report/pages/contact/rendered.png" width="420" alt="Generated contact page HTML render"> |
+| <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/reference/portfolio.png" width="420" alt="Portfolio page reference screenshot"> | <img src="https://raw.githubusercontent.com/Yaklede/image2html/main/tests/brand-site/report/pages/portfolio/rendered.png" width="420" alt="Generated portfolio page HTML render"> |
 
 ## Quality Target / 품질 기준
 

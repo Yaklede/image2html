@@ -1,9 +1,19 @@
 {
-  "name": "image2html",
-  "version": "0.1.5",
+  "name": "@yaklede/image2html",
+  "version": "1.0.0",
   "private": false,
   "description": "A Codex skill and harness for converting provided images into high-fidelity HTML.",
   "type": "module",
+  "bin": {
+    "image2html-harness": "scripts/run-harness.mjs",
+    "image2html-site-harness": "scripts/run-site-harness.mjs",
+    "image2html-normalize": "scripts/normalize-image.mjs",
+    "image2html-render": "scripts/render-html.mjs",
+    "image2html-compare": "scripts/compare-screenshots.mjs",
+    "image2html-a11y": "scripts/check-accessibility.mjs",
+    "image2html-inspect": "scripts/inspect-layout.mjs",
+    "image2html-responsive": "scripts/responsive-check.mjs"
+  },
   "scripts": {
     "harness": "node scripts/run-harness.mjs",
     "normalize": "node scripts/normalize-image.mjs",
@@ -14,6 +24,32 @@
     "responsive": "node scripts/responsive-check.mjs",
     "site-harness": "node scripts/run-site-harness.mjs"
   },
+  "files": [
+    "SKILL.md",
+    "DOCK.md",
+    "README.md",
+    "agents/",
+    "assets/templates/",
+    "references/",
+    "scripts/",
+    "dock.yml",
+    "logo.png"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yaklede/image2html.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yaklede/image2html/issues"
+  },
+  "homepage": "https://github.com/Yaklede/image2html#readme",
   "keywords": [
     "codex-skill",
     "image-to-html",
@@ -21,7 +57,7 @@
     "playwright"
   ],
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@axe-core/playwright": "^4.10.2",
     "pixelmatch": "^7.1.0",
     "playwright": "^1.54.2",
