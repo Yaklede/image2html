@@ -43,7 +43,19 @@ Use this final report shape after producing or verifying HTML.
 
 - Pages checked:
 - Average route similarity:
+- Region pass rate:
+- Element bbox pass rate:
+- Component pass rate:
+- Asset slot pass rate:
+- Anti-slop pass rate:
+- Vertical fit pass rate:
 - Failed routes:
+- Region failures:
+- Element bbox failures:
+- Component failures:
+- Asset slot failures:
+- Anti-slop failures:
+- Vertical fit failures:
 - Responsive route failures:
 - Interaction failures:
 - Console warnings/errors:

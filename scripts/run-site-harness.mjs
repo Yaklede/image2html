@@ -81,6 +81,274 @@ function normalizeBox(box) {
   };
 }
 
+function compareBounds(expected, actual, tolerance) {
+  const deltas = {
+    x: Number((actual.x - expected.x).toFixed(2)),
+    y: Number((actual.y - expected.y).toFixed(2)),
+    width: Number((actual.width - expected.width).toFixed(2)),
+    height: Number((actual.height - expected.height).toFixed(2))
+  };
+  const maxDelta = Number(Math.max(...Object.values(deltas).map((value) => Math.abs(value))).toFixed(2));
+  return { deltas, maxDelta, pass: maxDelta <= tolerance };
+}
+
+function verticalFitSpec(pageSpec, manifest, viewport) {
+  const enabled = Boolean(pageSpec.viewportFit ?? manifest.viewportFit);
+  const absolute = pageSpec.maxScrollHeight ?? manifest.maxScrollHeight;
+  const ratio = pageSpec.maxScrollHeightRatio ?? manifest.maxScrollHeightRatio;
+  if (absolute) {
+    return {
+      enabled: true,
+      maxScrollHeight: Number(absolute),
+      reason: "absolute maxScrollHeight"
+    };
+  }
+  if (enabled || ratio) {
+    const resolvedRatio = Number(ratio ?? 1.03);
+    return {
+      enabled: true,
+      maxScrollHeight: Math.round(Number(viewport.height) * resolvedRatio),
+      ratio: resolvedRatio,
+      reason: "viewportFit ratio"
+    };
+  }
+  return { enabled: false, maxScrollHeight: null };
+}
+
+async function extractRegion({ input, output, bounds }) {
+  await fs.mkdir(path.dirname(output), { recursive: true });
+  await sharp(input, { limitInputPixels: false }).extract(normalizeBox(bounds)).png().toFile(output);
+}
+
+async function compareRegions({ reference, rendered, outDir, regions, threshold, defaultMinSimilarity }) {
+  const results = [];
+  for (const region of regions || []) {
+    if (!region || region.required === false || !region.bounds) continue;
+    const regionDir = path.join(outDir, region.id || `region-${results.length + 1}`);
+    const referenceCrop = path.join(regionDir, "reference.png");
+    const renderedCrop = path.join(regionDir, "rendered.png");
+    const diff = path.join(regionDir, "diff.png");
+    await extractRegion({ input: reference, output: referenceCrop, bounds: region.bounds });
+    await extractRegion({ input: rendered, output: renderedCrop, bounds: region.bounds });
+    const compare = await compareImages({
+      reference: referenceCrop,
+      rendered: renderedCrop,
+      diff,
+      threshold: region.threshold || threshold
+    });
+    const minSimilarity = Number(region.minSimilarity ?? defaultMinSimilarity);
+    results.push({
+      id: region.id || `region-${results.length + 1}`,
+      bounds: region.bounds,
+      minSimilarity,
+      compare,
+      pass: compare.similarity >= minSimilarity
+    });
+  }
+  return results;
+}
+
+async function inspectElements(page, checks, defaultTolerance) {
+  const requested = (checks || [])
+    .filter((item) => item && item.required !== false)
+    .map((item, index) => ({ ...item, id: item.id || `element-${index + 1}` }));
+  if (!requested.length) return [];
+  const actual = await page.evaluate((items) => {
+    const result = {};
+    for (const item of items) {
+      const selector = item.selector || `[data-i2h-id="${CSS.escape(item.id)}"]`;
+      const nodes = [...document.querySelectorAll(selector)];
+      if (!nodes.length) {
+        result[item.id] = { count: 0, selector, actual: null };
+        continue;
+      }
+      const el = nodes[0];
+      const rect = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      const media = el.matches("img,picture,video,canvas")
+        ? el
+        : el.querySelector("img,picture,video,canvas");
+      const mediaStyle = media ? getComputedStyle(media) : null;
+      result[item.id] = {
+        count: nodes.length,
+        selector,
+        actual: {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+          display: style.display,
+          position: style.position,
+          overflow: style.overflow,
+          borderRadius: style.borderRadius,
+          objectFit: mediaStyle?.objectFit || style.objectFit || null,
+          backgroundImage: style.backgroundImage && style.backgroundImage !== "none" ? style.backgroundImage : null,
+          tagName: el.tagName.toLowerCase(),
+          mediaTagName: media?.tagName?.toLowerCase() || null,
+          mediaSrc: media?.currentSrc || media?.src || null,
+          mediaAlt: media?.alt || null,
+          naturalWidth: media?.naturalWidth || null,
+          naturalHeight: media?.naturalHeight || null
+        }
+      };
+    }
+    return result;
+  }, requested);
+
+  return requested.map((item, index) => {
+    const id = item.id || `element-${index + 1}`;
+    const entry = actual[id] || { count: 0, selector: item.selector || null, actual: null };
+    const tolerance = Number(item.tolerance ?? defaultTolerance);
+    const uniquePass = item.allowMultiple ? entry.count > 0 : entry.count === 1;
+    if (!entry.actual) {
+      return {
+        id,
+        selector: entry.selector || item.selector || null,
+        expected: item.bounds || null,
+        actual: null,
+        tolerance,
+        count: entry.count,
+        pass: false,
+        reason: "missing element"
+      };
+    }
+    const bounds = item.bounds ? compareBounds(item.bounds, entry.actual, tolerance) : { pass: true };
+    const objectFitPass = item.fillMode ? entry.actual.objectFit === item.fillMode : true;
+    const srcPass = item.expectedSrcIncludes ? String(entry.actual.mediaSrc || "").includes(item.expectedSrcIncludes) : true;
+    const altPass = item.expectedAltIncludes ? String(entry.actual.mediaAlt || "").includes(item.expectedAltIncludes) : true;
+    const requiresMedia = item.requiresMedia === true || item.expectedSrcIncludes || item.fillMode;
+    const mediaPass = requiresMedia ? Boolean(entry.actual.mediaTagName || entry.actual.backgroundImage) : true;
+    return {
+      id,
+      selector: entry.selector,
+      expected: item.bounds || null,
+      actual: entry.actual,
+      tolerance,
+      count: entry.count,
+      uniquePass,
+      ...(item.bounds ? bounds : {}),
+      objectFitPass,
+      srcPass,
+      altPass,
+      mediaPass,
+      pass: uniquePass && bounds.pass && objectFitPass && srcPass && altPass && mediaPass
+    };
+  });
+}
+
+async function collectPageCssText(page) {
+  const snapshot = await page.evaluate(() => {
+    const sheets = [...document.styleSheets].map((sheet) => {
+      let cssText = "";
+      try {
+        cssText = [...sheet.cssRules].map((rule) => rule.cssText).join("\n");
+      } catch {
+        cssText = "";
+      }
+      return { href: sheet.href || null, cssText };
+    });
+    const inline = [...document.querySelectorAll("style")].map((node) => node.textContent || "");
+    return { sheets, inline };
+  });
+
+  const chunks = [...snapshot.inline, ...snapshot.sheets.map((sheet) => sheet.cssText).filter(Boolean)];
+  for (const sheet of snapshot.sheets) {
+    if (sheet.cssText || !sheet.href) continue;
+    try {
+      if (sheet.href.startsWith("file://")) {
+        chunks.push(await fs.readFile(fileURLToPath(sheet.href), "utf8"));
+      } else if (/^https?:\/\//i.test(sheet.href)) {
+        const response = await fetch(sheet.href);
+        if (response.ok) chunks.push(await response.text());
+      }
+    } catch {
+      // Keep anti-slop checks best-effort for remote or inaccessible stylesheets.
+    }
+  }
+  return chunks.join("\n");
+}
+
+async function inspectAntiSlop(page, rules = null) {
+  const enabled = Boolean(
+    rules &&
+      (rules.forbiddenCssIncludes?.length ||
+        rules.forbiddenVisibleText?.length ||
+        rules.computedRules?.length)
+  );
+  if (!enabled) return { enabled: false, pass: true, checks: [] };
+
+  const cssText = await collectPageCssText(page);
+  return page.evaluate(({ inputRules, cssText }) => {
+    const checks = [];
+    const visibleText = document.body?.innerText || "";
+
+    for (const token of inputRules.forbiddenCssIncludes || []) {
+      const pass = !cssText.includes(token);
+      checks.push({
+        id: `forbidden-css:${token}`,
+        type: "forbiddenCssIncludes",
+        token,
+        pass,
+        reason: pass ? null : `CSS contains forbidden token: ${token}`
+      });
+    }
+
+    for (const token of inputRules.forbiddenVisibleText || []) {
+      const pass = !visibleText.includes(token);
+      checks.push({
+        id: `forbidden-text:${token}`,
+        type: "forbiddenVisibleText",
+        token,
+        pass,
+        reason: pass ? null : `Visible text contains invented token: ${token}`
+      });
+    }
+
+    for (const rule of inputRules.computedRules || []) {
+      const selector = rule.selector || "*";
+      const property = rule.property;
+      const nodes = [...document.querySelectorAll(selector)];
+      const values = nodes.map((node) => getComputedStyle(node).getPropertyValue(property));
+      let pass = nodes.length > 0;
+      let reason = pass ? null : `No elements matched ${selector}`;
+
+      if (pass && rule.notIncludes) {
+        const hit = values.find((value) => value.includes(rule.notIncludes));
+        pass = !hit;
+        reason = pass ? null : `${selector} ${property} contains ${rule.notIncludes}`;
+      }
+      if (pass && rule.equals !== undefined) {
+        const mismatch = values.find((value) => value.trim() !== String(rule.equals));
+        pass = !mismatch;
+        reason = pass ? null : `${selector} ${property} expected ${rule.equals}`;
+      }
+
+      checks.push({
+        id: rule.id || `computed:${selector}:${property}`,
+        type: "computedRule",
+        selector,
+        property,
+        sampleValues: values.slice(0, 5),
+        matched: nodes.length,
+        pass,
+        reason
+      });
+    }
+
+    return {
+      enabled: true,
+      cssLength: cssText.length,
+      checks,
+      pass: checks.every((check) => check.pass)
+    };
+  }, { inputRules: rules, cssText });
+}
+
+function passRate(items) {
+  if (!items.length) return 1;
+  return Number((items.filter((item) => item.pass).length / items.length).toFixed(4));
+}
+
 async function prepareReference({ input, output, crop, resizeTo }) {
   await fs.mkdir(path.dirname(output), { recursive: true });
   let image = sharp(input, { limitInputPixels: false }).rotate();
@@ -196,10 +464,27 @@ async function runInteractions({ page, interactions }) {
         await locatorFor(page, step.selector).fill(step.value || "");
         result.steps.push({ action: "fill", selector: step.selector, pass: true });
       } else if (step.action === "expectText") {
-        const visible = await page.locator("body").filter({ hasText: step.text }).count();
-        const pass = visible > 0;
+        let pass;
+        if (step.selector) {
+          const actual = await locatorFor(page, step.selector).innerText();
+          pass = actual.includes(step.text);
+          result.steps.push({ action: "expectText", selector: step.selector, text: step.text, pass, actual });
+        } else {
+          const visible = await page.locator("body").filter({ hasText: step.text }).count();
+          pass = visible > 0;
+          result.steps.push({ action: "expectText", text: step.text, pass });
+        }
         result.pass = result.pass && pass;
-        result.steps.push({ action: "expectText", text: step.text, pass });
+      } else if (step.action === "expectNotText") {
+        let actual;
+        if (step.selector) {
+          actual = await locatorFor(page, step.selector).innerText();
+        } else {
+          actual = await page.locator("body").innerText();
+        }
+        const pass = !actual.includes(step.text);
+        result.pass = result.pass && pass;
+        result.steps.push({ action: "expectNotText", selector: step.selector || "body", text: step.text, pass, actual });
       } else if (step.action === "expectSelector") {
         const pass = await locatorFor(page, step.selector).isVisible();
         result.pass = result.pass && pass;
@@ -224,6 +509,26 @@ async function writeReport({ outDir, manifest, pageResults, responsiveResults, i
   const failedPages = pageResults.filter((result) => !result.pass);
   const failedResponsive = responsiveResults.filter((result) => !result.pass);
   const failedInteractions = interactionResults.filter((result) => !result.pass);
+  const failedRegions = pageResults.flatMap((result) =>
+    result.regions.filter((region) => !region.pass).map((region) => ({ page: result.id, ...region }))
+  );
+  const failedElements = pageResults.flatMap((result) =>
+    result.elementChecks.filter((element) => !element.pass).map((element) => ({ page: result.id, ...element }))
+  );
+  const failedComponents = pageResults.flatMap((result) =>
+    result.componentChecks.filter((component) => !component.pass).map((component) => ({ page: result.id, ...component }))
+  );
+  const failedAssetSlots = pageResults.flatMap((result) =>
+    result.assetSlots.filter((slot) => !slot.pass).map((slot) => ({ page: result.id, ...slot }))
+  );
+  const failedAntiSlop = pageResults.flatMap((result) =>
+    result.antiSlop?.enabled
+      ? result.antiSlop.checks.filter((check) => !check.pass).map((check) => ({ page: result.id, ...check }))
+      : []
+  );
+  const failedVerticalFit = pageResults
+    .filter((result) => result.verticalFit?.enabled && !result.verticalFit.pass)
+    .map((result) => ({ page: result.id, ...result.verticalFit }));
   const lines = [
     "# Image2HTML Site Harness Report",
     "",
@@ -234,6 +539,12 @@ async function writeReport({ outDir, manifest, pageResults, responsiveResults, i
     `- Responsive checks: ${responsiveResults.length}`,
     `- Interactions checked: ${interactionResults.length}`,
     `- Average similarity: ${score.averageSimilarity}`,
+    `- Region pass rate: ${score.regionPassRate}`,
+    `- Element pass rate: ${score.elementPassRate}`,
+    `- Component pass rate: ${score.componentPassRate}`,
+    `- Asset slot pass rate: ${score.assetSlotPassRate}`,
+    `- Anti-slop pass rate: ${score.antiSlopPassRate}`,
+    `- Vertical fit pass rate: ${score.verticalFitPassRate}`,
     `- Target score: ${score.target}`,
     `- Result: ${pass ? "PASS" : "FAIL"}`,
     "",
@@ -241,14 +552,14 @@ async function writeReport({ outDir, manifest, pageResults, responsiveResults, i
     "",
     ...pageResults.map(
       (result) =>
-        `- ${result.id}: ${result.pass ? "PASS" : "FAIL"} similarity=${result.compare.similarity} route=${result.route} screenshot=${reportPath(result.screenshot)}`
+        `- ${result.id}: ${result.pass ? "PASS" : "FAIL"} similarity=${result.compare.similarity} regions=${result.regions.filter((item) => item.pass).length}/${result.regions.length} elements=${result.elementChecks.filter((item) => item.pass).length}/${result.elementChecks.length} components=${result.componentChecks.filter((item) => item.pass).length}/${result.componentChecks.length} assets=${result.assetSlots.filter((item) => item.pass).length}/${result.assetSlots.length} antiSlop=${result.antiSlop.enabled ? result.antiSlop.pass : "n/a"} verticalFit=${result.verticalFit.enabled ? result.verticalFit.pass : "n/a"} route=${result.route} screenshot=${reportPath(result.screenshot)}`
     ),
     "",
     "## Responsive",
     "",
     ...responsiveResults.map(
       (result) =>
-        `- ${result.route} ${result.viewport.width}x${result.viewport.height}: ${result.pass ? "PASS" : "FAIL"} overflowX=${result.health.hasHorizontalOverflow} screenshot=${reportPath(result.screenshot)}`
+        `- ${result.route} ${result.viewport.width}x${result.viewport.height}: ${result.pass ? "PASS" : "FAIL"} overflowX=${result.health.hasHorizontalOverflow} verticalFit=${result.verticalFit.enabled ? result.verticalFit.pass : "n/a"} screenshot=${reportPath(result.screenshot)}`
     ),
     "",
     "## Interactions",
@@ -258,8 +569,47 @@ async function writeReport({ outDir, manifest, pageResults, responsiveResults, i
     "## Failures",
     "",
     `- Page failures: ${failedPages.length}`,
+    `- Region failures: ${failedRegions.length}`,
+    `- Element bbox failures: ${failedElements.length}`,
+    `- Component failures: ${failedComponents.length}`,
+    `- Asset slot failures: ${failedAssetSlots.length}`,
+    `- Anti-slop failures: ${failedAntiSlop.length}`,
+    `- Vertical fit failures: ${failedVerticalFit.length}`,
     `- Responsive failures: ${failedResponsive.length}`,
     `- Interaction failures: ${failedInteractions.length}`,
+    "",
+    "## Gate Failure Details",
+    "",
+    ...(failedRegions.length
+      ? failedRegions.map(
+          (item) => `- region ${item.page}/${item.id}: similarity=${item.compare.similarity} min=${item.minSimilarity}`
+        )
+      : ["- Region failures: none"]),
+    ...(failedElements.length
+      ? failedElements.map(
+          (item) => `- element ${item.page}/${item.id}: selector=${item.selector} maxDelta=${item.maxDelta ?? "n/a"} count=${item.count}`
+        )
+      : ["- Element failures: none"]),
+    ...(failedComponents.length
+      ? failedComponents.map(
+          (item) =>
+            `- component ${item.page}/${item.id}: selector=${item.selector} maxDelta=${item.maxDelta ?? "n/a"} count=${item.count}`
+        )
+      : ["- Component failures: none"]),
+    ...(failedAssetSlots.length
+      ? failedAssetSlots.map(
+          (item) =>
+            `- asset ${item.page}/${item.id}: selector=${item.selector} maxDelta=${item.maxDelta ?? "n/a"} media=${item.mediaPass} src=${item.srcPass} objectFit=${item.objectFitPass}`
+        )
+      : ["- Asset slot failures: none"]),
+    ...(failedAntiSlop.length
+      ? failedAntiSlop.map((item) => `- anti-slop ${item.page}/${item.id}: ${item.reason || "failed"}`)
+      : ["- Anti-slop failures: none"]),
+    ...(failedVerticalFit.length
+      ? failedVerticalFit.map(
+          (item) => `- vertical ${item.page}: scrollHeight=${item.actualScrollHeight} max=${item.maxScrollHeight}`
+        )
+      : ["- Vertical fit failures: none"]),
     "",
     "## Manual Checks Still Required",
     "",
@@ -331,10 +681,48 @@ async function main() {
       threshold: pageSpec.threshold || manifest.threshold || 0.1
     });
     const health = await inspectPage(page, pageSpec.expectedText || []);
+    const verticalFit = verticalFitSpec(pageSpec, manifest, viewport);
+    const verticalFitResult = {
+      ...verticalFit,
+      actualScrollHeight: health.scrollHeight,
+      viewportHeight: health.clientHeight,
+      pass: !verticalFit.enabled || health.scrollHeight <= verticalFit.maxScrollHeight
+    };
+    const defaultRegionMinSimilarity = Number(pageSpec.regionMinSimilarity ?? manifest.regionMinSimilarity ?? 0.9);
+    const regions = await compareRegions({
+      reference: normalizedReference,
+      rendered: screenshot,
+      outDir: path.join(pageDir, "regions"),
+      regions: pageSpec.regions || [],
+      threshold: pageSpec.regionThreshold || pageSpec.threshold || manifest.regionThreshold || manifest.threshold || 0.1,
+      defaultMinSimilarity: defaultRegionMinSimilarity
+    });
+    const elementChecks = await inspectElements(
+      page,
+      pageSpec.elements || [],
+      Number(pageSpec.elementTolerance ?? manifest.elementTolerance ?? 8)
+    );
+    const componentChecks = await inspectElements(
+      page,
+      pageSpec.components || [],
+      Number(pageSpec.componentTolerance ?? manifest.componentTolerance ?? manifest.elementTolerance ?? 8)
+    );
+    const assetSlots = await inspectElements(
+      page,
+      pageSpec.assetSlots || [],
+      Number(pageSpec.assetSlotTolerance ?? manifest.assetSlotTolerance ?? 8)
+    );
+    const antiSlop = await inspectAntiSlop(page, pageSpec.antiSlop || manifest.antiSlop || null);
     const pass =
       compare.similarity >= (pageSpec.minSimilarity || manifest.minSimilarity || target) &&
       !health.hasHorizontalOverflow &&
-      health.missingTexts.length === 0;
+      health.missingTexts.length === 0 &&
+      verticalFitResult.pass &&
+      regions.every((result) => result.pass) &&
+      elementChecks.every((result) => result.pass) &&
+      componentChecks.every((result) => result.pass) &&
+      antiSlop.pass &&
+      assetSlots.every((result) => result.pass);
     pageResults.push({
       id: pageSpec.id,
       route: pageSpec.route,
@@ -343,6 +731,12 @@ async function main() {
       diff,
       compare,
       health,
+      verticalFit: verticalFitResult,
+      regions,
+      elementChecks,
+      componentChecks,
+      assetSlots,
+      antiSlop,
       pass
     });
   }
@@ -359,12 +753,27 @@ async function main() {
       const screenshot = path.join(responsiveDir, `${routeName}-${viewportSpec.width}x${viewportSpec.height}.png`);
       await page.screenshot({ path: screenshot, fullPage: false });
       const health = await inspectPage(page, []);
+      const responsiveVerticalFit =
+        viewportSpec.maxScrollHeight || viewportSpec.maxScrollHeightRatio || manifest.responsiveMaxScrollHeightRatio
+          ? {
+              enabled: true,
+              maxScrollHeight: viewportSpec.maxScrollHeight
+                ? Number(viewportSpec.maxScrollHeight)
+                : Math.round(
+                    viewportSpec.height * Number(viewportSpec.maxScrollHeightRatio ?? manifest.responsiveMaxScrollHeightRatio)
+                  ),
+              actualScrollHeight: health.scrollHeight
+            }
+          : { enabled: false, maxScrollHeight: null, actualScrollHeight: health.scrollHeight };
+      responsiveVerticalFit.pass =
+        !responsiveVerticalFit.enabled || health.scrollHeight <= responsiveVerticalFit.maxScrollHeight;
       responsiveResults.push({
         route,
         viewport: viewportSpec,
         screenshot,
         health,
-        pass: health.bodyTextLength > 0 && !health.hasHorizontalOverflow
+        verticalFit: responsiveVerticalFit,
+        pass: health.bodyTextLength > 0 && !health.hasHorizontalOverflow && responsiveVerticalFit.pass
       });
     }
   }
@@ -382,6 +791,14 @@ async function main() {
     averageSimilarity,
     target,
     pagePassRate: Number((pageResults.filter((result) => result.pass).length / Math.max(1, pageResults.length)).toFixed(4)),
+    regionPassRate: passRate(pageResults.flatMap((result) => result.regions)),
+    elementPassRate: passRate(pageResults.flatMap((result) => result.elementChecks)),
+    componentPassRate: passRate(pageResults.flatMap((result) => result.componentChecks)),
+    assetSlotPassRate: passRate(pageResults.flatMap((result) => result.assetSlots)),
+    antiSlopPassRate: passRate(pageResults.filter((result) => result.antiSlop?.enabled).map((result) => result.antiSlop)),
+    verticalFitPassRate: passRate(
+      pageResults.filter((result) => result.verticalFit.enabled).map((result) => result.verticalFit)
+    ),
     responsivePassRate: Number(
       (responsiveResults.filter((result) => result.pass).length / Math.max(1, responsiveResults.length)).toFixed(4)
     ),

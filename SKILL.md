@@ -60,6 +60,7 @@ npm run site-harness -- --manifest path/to/site-manifest.json --out .image2html-
 ```
 
 The site manifest must map each reference image to a route or state in the same HTML/app, declare shared `renderViewport` and crop rules, list responsive routes, and include interaction checks for menus, forms, filters, accordions, modals, or other stateful UI implied by the images.
+For high-fidelity multi-image sites, also declare critical `regions`, `elements`, `components`, `assetSlots`, `antiSlop`, and `viewportFit` constraints so the harness fails routes whose average score hides hero, header, product image, form density, component-detail, AI-slop, or screen-fit mismatches.
 
 8. Read `references/fidelity-rubric.md` when interpreting scores or deciding whether the implementation is ready.
 9. Use `references/report-format.md` for the final report.
@@ -71,8 +72,10 @@ The harness is a quality gate, not the only judge. It crops the reference to con
 Treat these as hard failures:
 
 - main layout differs from the image
+- a critical region such as hero, header, product media, form panel, or checkout summary falls below its route-level region threshold
 - major text is missing or wrong
 - elements overlap, clip, or overflow
+- a reference that represents one viewport renders substantially taller than that viewport when `viewportFit` or `maxScrollHeight` is declared
 - the page is blank or not rendered at the requested viewport
 - a web page is implemented as a fixed-size static canvas unless explicitly requested
 - a web page is fitted to the source image dimensions instead of the intended `renderViewport`
@@ -80,9 +83,13 @@ Treat these as hard failures:
 - implied site interactions such as navigation, forms, filters, accordions, modals, pricing CTAs, or mobile menus are inert
 - browser/OS chrome is recreated when it should be excluded from the delivered page
 - `data-i2h-id` elements are missing or outside bbox tolerance
+- declared `elements` or shared chrome such as headers, nav items, search inputs, CTAs, and icon buttons are missing or outside bbox tolerance
+- declared `components` such as card media/body/action parts, button labels/icons, form fields, state cards, and nested UI pieces are missing or outside bbox tolerance
 - nested child components escape or materially misalign inside their parent components
 - icon size or position differs materially from the analysis spec
+- declared `antiSlop` checks find forbidden CSS, invented visible copy, excessive generic effects, or reference-inconsistent decoration
 - image-like regions are approximated with low-quality CSS/SVG instead of being represented as fillable asset slots
+- declared image/product asset slots are missing, mis-sized, use the wrong object fit, or do not reference the expected asset when `expectedSrcIncludes` is declared
 - primary controls are non-semantic when semantic HTML is available
 - accessibility scan reports critical violations
 
@@ -107,6 +114,7 @@ Always report:
 - harness score and pass/fail result when run
 - content crop used, if any
 - layout bbox, region diff, edge/shadow, responsive, and accessibility results
+- component pass rate and anti-slop pass rate when declared
 - render viewport used, plus whether the reference was resized to it
 - asset slots left empty, masked comparison status, and the expected files/inputs needed to fill them
 - material mismatches fixed or remaining
