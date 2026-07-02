@@ -8,7 +8,7 @@
 - Image analysis, implementation, fidelity, and report reference docs
 - Single-image and multi-image site harness scripts
 - A standalone HTML starter template
-- Local npm dependencies exported into the installed skill directory
+- Bundled macOS npm dependencies in the installed skill directory
 
 ## When To Use It
 
@@ -41,7 +41,7 @@ See the GitHub README for the before/after image table and generated HTML render
 
 ## After Install
 
-Ask Codex to use the installed `image2html` skill with a supplied image. The dock installs the harness dependencies during OpenDock install by running npm in the private dock workdir and exporting `node_modules` into `.codex/skills/image2html/`.
+Ask Codex to use the installed `image2html` skill with a supplied image. The dock bundles the harness dependencies into `.codex/skills/image2html/node_modules` as managed files, so OpenDock install does not run package-install lifecycle commands.
 
 Run the single-image harness:
 
