@@ -1,6 +1,6 @@
 {
   "name": "image2html",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": false,
   "description": "A Codex skill and harness for converting provided images into high-fidelity HTML.",
   "type": "module",

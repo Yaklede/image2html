@@ -29,42 +29,14 @@ files:
     to: .codex/skills/image2html/package.json
   - from: package-lock.json
     to: .codex/skills/image2html/package-lock.json
-  - from: node_modules/@axe-core
-    to: .codex/skills/image2html/node_modules/@axe-core
-  - from: node_modules/@emnapi
-    to: .codex/skills/image2html/node_modules/@emnapi
-  - from: node_modules/@img
-    to: .codex/skills/image2html/node_modules/@img
-  - from: node_modules/axe-core
-    to: .codex/skills/image2html/node_modules/axe-core
-  - from: node_modules/color
-    to: .codex/skills/image2html/node_modules/color
-  - from: node_modules/color-convert
-    to: .codex/skills/image2html/node_modules/color-convert
-  - from: node_modules/color-name
-    to: .codex/skills/image2html/node_modules/color-name
-  - from: node_modules/color-string
-    to: .codex/skills/image2html/node_modules/color-string
-  - from: node_modules/detect-libc
-    to: .codex/skills/image2html/node_modules/detect-libc
-  - from: node_modules/is-arrayish
-    to: .codex/skills/image2html/node_modules/is-arrayish
-  - from: node_modules/pixelmatch
-    to: .codex/skills/image2html/node_modules/pixelmatch
-  - from: node_modules/playwright
-    to: .codex/skills/image2html/node_modules/playwright
-  - from: node_modules/playwright-core
-    to: .codex/skills/image2html/node_modules/playwright-core
-  - from: node_modules/pngjs
-    to: .codex/skills/image2html/node_modules/pngjs
-  - from: node_modules/semver
-    to: .codex/skills/image2html/node_modules/semver
-  - from: node_modules/sharp
-    to: .codex/skills/image2html/node_modules/sharp
-  - from: node_modules/simple-swizzle
-    to: .codex/skills/image2html/node_modules/simple-swizzle
 
 doctor:
+  - id: node-runtime
+    run: node --version
+    version: ">=20.0.0"
+  - id: npm-runtime
+    run: npm --version
+    version: ">=10.0.0"
   - id: codex-skill
     check: test -f .codex/skills/image2html/SKILL.md
   - id: analysis-schema
@@ -75,5 +47,5 @@ doctor:
     check: test -f .codex/skills/image2html/scripts/run-site-harness.mjs
   - id: harness-package
     check: test -f .codex/skills/image2html/package.json
-  - id: harness-sharp-dependency
-    check: test -d .codex/skills/image2html/node_modules/sharp
+  - id: harness-lockfile
+    check: test -f .codex/skills/image2html/package-lock.json
