@@ -24,9 +24,9 @@ The goal is to guide an AI model through detailed image analysis, structured HTM
 
 ## NPM Package / npm 패키지
 
-The harness is prepared to publish as `@yaklede/image2html`. Publish it as a public npm package, then reference the CLI commands from OpenDock `tools` instead of vendoring `node_modules` into the dock archive.
+The harness is also published as `@yaklede/image2html` for direct npm usage outside OpenDock.
 
-하네스는 `@yaklede/image2html` npm 패키지로 publish하는 구조입니다. OpenDock archive 안에 `node_modules`를 포함하지 않고, publish 이후 OpenDock `tools`에서 npm CLI 패키지로 선언합니다.
+하네스는 OpenDock 외부에서도 직접 사용할 수 있도록 `@yaklede/image2html` npm 패키지로 publish되어 있습니다.
 
 ### Publisher Requirements / publish 전에 필요한 것
 
@@ -86,31 +86,28 @@ Or call the installed binaries directly:
 
 ## OpenDock Deploy / OpenDock 배포
 
-OpenDock installs the Codex skill files and references. Runtime dependencies must come from npm through `tools`; OpenDock tasks must not run package-install commands or archive vendored native binaries.
+OpenDock installs the Codex skill files, harness scripts, package metadata, and reference docs. Runtime dependencies are handled through OpenDock `dependencies` mode inside the copied skill folder; the dock does not vendor `node_modules` or run package-install task commands.
 
-OpenDock는 Codex skill 파일과 reference 문서를 설치합니다. 런타임 dependency는 npm package를 `tools`로 선언해서 공급해야 하며, OpenDock task에서 `npm install`을 실행하거나 native binary가 포함된 `node_modules`를 archive에 넣지 않습니다.
+OpenDock는 Codex skill 파일, 하네스 스크립트, package metadata, reference 문서를 설치합니다. 런타임 dependency는 복사된 skill 폴더 내부에서 OpenDock `dependencies` 모드로 처리하며, dock archive에 `node_modules`를 포함하거나 task에서 package install 명령을 실행하지 않습니다.
 
-After the npm package is published, declare it as a project-local tool in `dock.yml`:
+The dock uses copied-folder dependency mode:
 
 ```yaml
-tools:
+dependencies:
   image2html:
     manager: npm
-    package: "@yaklede/image2html"
-    version: "1.0.0"
-    commands:
-      - image2html-harness
-      - image2html-site-harness
+    path: .codex/skills/image2html
+    mode: ci
 ```
 
 Deploy for review:
 
 ```bash
 opendock auth login
-opendock deploy yaklede/image2html@1.0.0 --platform macos --file dock.yml
+opendock deploy yaklede/image2html@1.0.1 --platform macos --file dock.yml
 ```
 
-Installed files and tool shims are checked with:
+Installed files and managed dependencies are checked with:
 
 ```bash
 opendock doctor yaklede/image2html

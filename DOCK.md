@@ -6,7 +6,7 @@
 
 - A Codex skill at `.codex/skills/image2html/SKILL.md`
 - Image analysis, implementation, fidelity, and report reference docs
-- OpenDock tool shims for the single-image and multi-image site harness
+- Single-image and multi-image site harness scripts with OpenDock-managed npm dependencies
 - A standalone HTML starter template
 
 ## When To Use It
@@ -40,18 +40,18 @@ See the GitHub README for the before/after image table and generated HTML render
 
 ## After Install
 
-Ask Codex to use the installed `image2html` skill with a supplied image. OpenDock installs the skill source, reference docs, templates, and npm-backed harness commands. It does not vendor `node_modules` or run package-install lifecycle commands.
+Ask Codex to use the installed `image2html` skill with a supplied image. OpenDock installs the skill source, reference docs, templates, harness package metadata, and npm dependencies through `dependencies` mode. It does not vendor `node_modules` or run package-install task commands.
 
-The harness is installed as a project-local OpenDock tool from the public npm package `@yaklede/image2html`.
+The harness runs from the installed skill folder.
 
 Run the single-image harness:
 
 ```bash
-image2html-harness --reference path/to/reference.png --html path/to/output.html --out .image2html-report
+npm --prefix .codex/skills/image2html run harness -- --reference path/to/reference.png --html path/to/output.html --out .image2html-report
 ```
 
 For multiple screenshots that form one site:
 
 ```bash
-image2html-site-harness --manifest path/to/site-manifest.json --out .image2html-site-report
+npm --prefix .codex/skills/image2html run site-harness -- --manifest path/to/site-manifest.json --out .image2html-site-report
 ```
