@@ -18,7 +18,7 @@ dependencies:
   image2html:
     manager: npm
     path: .codex/skills/image2html
-    mode: ci
+    mode: install
 
 files:
   - from: SKILL.md

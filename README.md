@@ -97,14 +97,14 @@ dependencies:
   image2html:
     manager: npm
     path: .codex/skills/image2html
-    mode: ci
+    mode: install
 ```
 
 Deploy for review:
 
 ```bash
 opendock auth login
-opendock deploy yaklede/image2html@1.0.1 --platform macos --file dock.yml
+opendock deploy yaklede/image2html@1.0.2 --platform macos --file dock.yml
 ```
 
 Installed files and managed dependencies are checked with:
